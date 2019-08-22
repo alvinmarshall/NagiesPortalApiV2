@@ -7,13 +7,12 @@ const path = require("path");
 const logger = require("morgan");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-const { dbConfig } = require("./config/config");
-
+const passport = require("passport");
 const app = express();
 
-
 //middle ware
-
+//passport config
+require("./config/passport")(passport);
 // morgan
 app.use(logger("dev"));
 
@@ -22,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //path
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, process.env.ASSERT_DIR)));
 
 //routes
 app.use("/", indexRouter);
@@ -44,5 +43,4 @@ app.use((err, req, res, next) => {
   res.send({ message: "endpoint unavaialble", status: 404 });
   next();
 });
-
 module.exports = app;

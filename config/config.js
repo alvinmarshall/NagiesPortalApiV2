@@ -8,5 +8,8 @@ module.exports = {
     database: process.env.DB_NAME,
     user: process.env.DB_USR,
     password: process.env.DB_PWD
+  },
+  jwtConfig:{
+    secret:process.env.JWT_KEY
   }
 };
