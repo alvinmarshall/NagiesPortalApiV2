@@ -1,3 +1,15 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:40:18
+ * @modify date 2019-08-23 18:40:18
+ * @desc users model
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const Database = require("../config/Database");
 const { dbConfig, jwtConfig } = require("../config/config");
 const db = new Database(dbConfig);
@@ -17,6 +29,10 @@ const {
 } = require("../utils/formatResource");
 
 module.exports = {
+  //
+  // ─── AUTHENTICATION WITH ID ─────────────────────────────────────────────────────
+  //
+
   //#region authenticate with id
   authenticateWithId: (role, id) => {
     let sql = "";
@@ -32,6 +48,10 @@ module.exports = {
     }
   },
   //#endregion
+
+  //
+  // ─── AUTHENTICATION WITH USERNAME AND PASSWORD ──────────────────────────────────
+  //
 
   //#region authenticate with username
   authenticateUserWithUsername: (req, res, role) => {
@@ -52,6 +72,10 @@ module.exports = {
     }
   },
   //#endregion
+
+  //
+  // ─── CHANGE ACCOUNT PASSWORD ────────────────────────────────────────────────────
+  //
 
   //#region change Password
   changeAccountPassword: (req, res, user) => {
@@ -74,6 +98,10 @@ module.exports = {
   },
   //#endregion
 
+  //
+  // ─── PROFILE ACCOUNT ────────────────────────────────────────────────────────────
+  //
+
   //#region Account Profile
   profileAccount: (res, role, id) => {
     let sql = "";
@@ -94,6 +122,10 @@ module.exports = {
   }
   //#endregion
 };
+
+//
+// ─── FUNCTIONS ──────────────────────────────────────────────────────────────────
+//
 
 //#region Functions
 

@@ -1,6 +1,24 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:52:42
+ * @modify date 2019-08-23 18:52:42
+ * @desc launch application
+ */
+
+//
+// ─── LOCAL ENV ──────────────────────────────────────────────────────────────────
+// NOTE load local env only in development
+//
+
 if (process.env.NODE_ENV !== "production") {
   require("dotenv/config");
 }
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -11,7 +29,10 @@ const passport = require("passport");
 const studentRouter = require("./routes/student");
 const app = express();
 
-//middle ware
+//
+// ─── MIDDLE WARE ────────────────────────────────────────────────────────────────
+//
+
 //passport config
 require("./config/passport")(passport);
 // morgan

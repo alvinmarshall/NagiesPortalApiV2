@@ -1,3 +1,15 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:42:48
+ * @modify date 2019-08-23 18:42:48
+ * @desc users routes
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const express = require("express");
 const router = express.Router();
 const {
@@ -15,7 +27,16 @@ const { USER_ROLE } = require("../utils/constants");
 const { invalidInputFormat } = require("../utils/formatResource");
 const _ = require("lodash");
 
+//
+// ─── ROUTES ─────────────────────────────────────────────────────────────────────
+//
+
 //#endregion parent login
+
+//
+// ─── PARENT AUTHENTICATION ──────────────────────────────────────────────────────
+//
+
 router.post("/parent", (req, res, next) => {
   const errors = loginInputValidation(req);
   if (!_.isEmpty(errors)) {
@@ -27,6 +48,11 @@ router.post("/parent", (req, res, next) => {
 //#endregion
 
 //#endregion teacher login
+
+//
+// ─── TEACHER AUTHENTICATION ─────────────────────────────────────────────────────
+//
+
 router.post("/teacher", (req, res, next) => {
   const errors = loginInputValidation(req);
   if (!_.isEmpty(errors)) {
@@ -38,6 +64,11 @@ router.post("/teacher", (req, res, next) => {
 //#endregion
 
 //#region Change Password
+
+//
+// ─── CHANGE PASSWORD ────────────────────────────────────────────────────────────
+//
+
 router.post("/change_password", (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
     if (ensureAuthentication(err, res, info)) {
@@ -56,6 +87,11 @@ router.post("/change_password", (req, res, next) => {
 //#endregion
 
 //#region Profile
+
+//
+// ─── PROFILE ────────────────────────────────────────────────────────────────────
+//
+
 router.get("/profile", (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
     if (ensureAuthentication(err, res, info)) {

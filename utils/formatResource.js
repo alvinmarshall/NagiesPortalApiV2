@@ -1,17 +1,53 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:49:41
+ * @modify date 2019-08-23 18:49:41
+ * @desc resource formatter utility
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const { USER_ROLE } = require("../utils/constants");
 module.exports = {
+  //
+  // ─── SHOW DATA FORMAT──────────────────────────────────────────────────────────────────
+  //
+
   showData: data => {
     return { status: 200, data: data };
   },
+
+  //
+  // ─── INVALID INPUT FORMAT ───────────────────────────────────────────────────────
+  //
+
   invalidInputFormat: err => {
     return { message: "field empty", status: 400, errors: err };
   },
+
+  //
+  // ─── NO DATA FORMAT ─────────────────────────────────────────────────────────────
+  //
+
   noDataFormat: () => {
     return { message: "No Data Available", status: 404 };
   },
+
+  //
+  // ─── AUTHENTICATION FAILED FORMAT ───────────────────────────────────────────────
+  //
+
   authenticationFailedFormat: () => {
     return { message: "authentication failed", status: 401 };
   },
+
+  //
+  // ─── LOGIN PAYLOAD FORMAT ───────────────────────────────────────────────────────
+  //
+
   loginPayloadFormat: (role, data) => {
     switch (role) {
       case USER_ROLE.Parent:
@@ -38,6 +74,11 @@ module.exports = {
         return {};
     }
   },
+
+  //
+  // ─── PROFILE FORMAT ─────────────────────────────────────────────────────────────
+  //
+
   profileFormat: (role, data) => {
     const profile = {};
     switch (role) {

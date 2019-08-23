@@ -1,4 +1,20 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 19:01:28
+ * @modify date 2019-08-23 19:01:28
+ * @desc mysql wrapped with promise
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const mysql = require("mysql");
+//
+// ─── MYSQL DATABASE CONNECTION ───────────────────────────────────────────────────────────────────
+//
+
 class Database {
   constructor(config) {
     this.connection = mysql.createConnection(config);
