@@ -1,16 +1,35 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:37:27
+ * @modify date 2019-08-23 18:37:27
+ * @desc student model
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
 const _ = require("lodash");
 const { noDataFormat, showData } = require("../utils/formatResource");
 const {
-  ASSIGNMENT_TYPE,
+  FORMAT_TYPE,
   TABLE_ASSIGNMENT_IMAGE,
-  TABLE_ASSIGNMENT_PDF
+  TABLE_ASSIGNMENT_PDF,
+  TABLE_REPORT_PDF,
+  TABLE_REPORT_IMAGE
 } = require("../utils/constants");
 
 module.exports = {
   //#region student message
+
+  //
+  // ─── MESSAGES ───────────────────────────────────────────────────────────────────
+  //
+
   studentMessage: (req, res, level) => {
     const sql = `SELECT 
         id, Message_BY, M_Date, Message, Message_Level, M_Read
@@ -28,16 +47,21 @@ module.exports = {
   //#endregion
 
   //#region student assignment
+  //
+  // ─── ASSSIGNMENT ────────────────────────────────────────────────────────────────
+  // NOTE Student_No from assignment table is actually level not ref
+  //
+
   studentAssignment: (req, res, type, ref) => {
     let sql = "";
     let table = "";
     switch (type) {
-      case ASSIGNMENT_TYPE.PDF:
+      case FORMAT_TYPE.PDF:
         table = TABLE_ASSIGNMENT_PDF;
         sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
         getAssignmentType(req, res, sql, ref);
         break;
-      case ASSIGNMENT_TYPE.IMAGE:
+      case FORMAT_TYPE.IMAGE:
         table = TABLE_ASSIGNMENT_IMAGE;
         sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
         getAssignmentType(req, res, sql, ref);
@@ -46,12 +70,45 @@ module.exports = {
       default:
         break;
     }
-  }
+  },
+  //#endregion
 
+  //#region student report
+
+  //
+  // ─── REPORT ─────────────────────────────────────────────────────────────────────
+  //
+
+  studentReport: (req, res, type, ref) => {
+    let sql = "";
+    let table = "";
+    switch (type) {
+      case FORMAT_TYPE.PDF:
+        table = TABLE_REPORT_PDF;
+        sql = `SELECT 
+        Students_Name,
+        Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
+        getReportType(req, res, sql, ref);
+        break;
+      case FORMAT_TYPE.IMAGE:
+        table = TABLE_REPORT_IMAGE;
+        sql = `SELECT 
+        Students_Name,
+        Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
+        getReportType(req, res, sql, ref);
+        break;
+
+      default:
+        break;
+    }
+  }
   //#endregion
 };
 
 //#region Functions
+//
+// ─── FUNCTIONS ──────────────────────────────────────────────────────────────────
+//
 
 //#region function for assignment
 const getAssignmentType = (req, res, sql, ref) => {
@@ -65,6 +122,21 @@ const getAssignmentType = (req, res, sql, ref) => {
     })
     .catch(err => console.error(err));
 };
+//#endregion
+
+//#region function for report
+const getReportType = (req, res, sql, ref) => {
+  db.query(sql, [ref])
+    .then(data => {
+      if (_.isEmpty(data)) {
+        res.send(noDataFormat());
+        return;
+      }
+      res.send(showData(data));
+    })
+    .catch(err => console.error(err));
+};
+
 //#endregion
 
 //#endregion
