@@ -16,7 +16,7 @@ module.exports = {
     return errors;
   },
 
-  ensureAuthentication: (res,err, info) => {
+  ensureAuthentication: (err,res, info) => {
     if (err) {
       console.log(err);
     }

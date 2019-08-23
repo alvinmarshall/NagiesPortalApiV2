@@ -7,6 +7,7 @@ const {
   TABLE_STUDENT,
   USER_ROLE
 } = require("../utils/constants");
+const { profileFormat, noDataFormat } = require("../utils/formatResource");
 
 module.exports = {
   //#region Parent auth
@@ -34,8 +35,14 @@ module.exports = {
   //#endregion
 
   //#region change Password
-  changeAccountPassword: (res, role, passObj) => {
-    switch (role) {
+  changeAccountPassword: (req, res, user) => {
+    const passObj = {
+      id: user.id,
+      old: req.body.old_password,
+      new: req.body.new_password,
+      confirm: req.body.confirm_password
+    };
+    switch (user.role) {
       case USER_ROLE.Parent:
         changePassword(passObj, res, TABLE_STUDENT);
         break;
@@ -45,9 +52,45 @@ module.exports = {
       default:
         break;
     }
+  },
+  //#endregion
+
+  //#region Account Profile
+  profileAccount: (res, role, id) => {
+    let sql = "";
+    switch (role) {
+      case USER_ROLE.Parent:
+        sql = `SELECT * FROM ${TABLE_STUDENT} WHERE id = ?`;
+        accountProfile(res, sql, id, USER_ROLE.Parent);
+        break;
+
+      case USER_ROLE.Teacher:
+        sql = `SELECT id, Teachers_No, Teachers_Name, Dob, Gender, Contact, Admin_Date, Faculty_Name, Level_Name, Username, Image FROM ${TABLE_TEACHER} WHERE id = ?`;
+        accountProfile(res, sql, id, USER_ROLE.Teacher);
+        break;
+
+      default:
+        break;
+    }
   }
   //#endregion
 };
+
+//#region function account for profile
+const accountProfile = (res, sql, id, role) => {
+  db.query(sql, id)
+    .then(data => {
+      if (data.length === 0) {
+        res.status(404).send(noDataFormat());
+        return;
+      }
+      res.send(profileFormat(role, data));
+    })
+    .catch(err => console.error(err));
+};
+//#endregion
+
+//#region function for account password
 const changePassword = (passObj, res, table) => {
   const sql = `SELECT IF ( COUNT(*) > 0,'true','false') AS exist  FROM ${table} WHERE id = ? AND Password = ?`;
   db.query(sql, [passObj.id, passObj.old])
@@ -82,3 +125,4 @@ const changePassword = (passObj, res, table) => {
     })
     .catch(err => console.error(err));
 };
+//#endregion
