@@ -1,39 +1,69 @@
 const express = require("express");
 const router = express.Router();
-const jsonWebToken = require("jsonwebtoken");
-const { authParentWithUsername } = require("../models/Student");
-const { jwtConfig } = require("../config/config");
+const {
+  authenticateUserWithUsername,
+  changeAccountPassword,
+  profileAccount
+} = require("../models/Users");
 const passport = require("passport");
+const {
+  loginInputValidation,
+  changePasswordValidation,
+  ensureAuthentication
+} = require("../utils/validation");
+const { USER_ROLE } = require("../utils/constants");
+const { invalidInputFormat } = require("../utils/formatResource");
+const _ = require("lodash");
 
-// parent login
+//#endregion parent login
 router.post("/parent", (req, res, next) => {
-  authParentWithUsername(req.body.username, req.body.password)
-    .then(data => {
-      if (data.length > 0) {
-        console.log(data[0]);
-        const payload = {
-          id: data[0].id,
-          studentNo: data[0].Students_No,
-          level: data[0].Level_Name,
-          role: "parent",
-          name: data[0].Students_Name,
-          imageUrl: data[0].Image
-        };
-        jsonWebToken.sign(payload, jwtConfig.secret, (err, encode) => {
-          if (err) throw err;
-          res.json({
-            message: "login successs",
-            token: `Bearer ${encode}`,
-            status: 200
-          });
-        });
+  const errors = loginInputValidation(req);
+  if (!_.isEmpty(errors)) {
+    res.status(400).send(invalidInputFormat(errors));
+    return;
+  }
+  authenticateUserWithUsername(req, res, USER_ROLE.Parent);
+});
+//#endregion
+
+//#endregion teacher login
+router.post("/teacher", (req, res, next) => {
+  const errors = loginInputValidation(req);
+  if (!_.isEmpty(errors)) {
+    res.status(400).send(invalidInputFormat(errors));
+    return;
+  }
+  authenticateUserWithUsername(req, res, USER_ROLE.Teacher);
+});
+//#endregion
+
+//#region Change Password
+router.post("/change_password", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      const errors = changePasswordValidation(req);
+      if (!_.isEmpty(errors)) {
+        res
+          .status(400)
+          .send({ message: "field empty", status: 400, errors: errors });
       } else {
-        res.send("failed");
+        changeAccountPassword(req, res, user);
       }
-    })
-    .catch(err => console.error(err));
+    }
+  })(req, res, next);
 });
 
+//#endregion
+
+//#region Profile
+router.get("/profile", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      profileAccount(res, user.role, user.id);
+    }
+  })(req, res, next);
+});
+//#endregion
 
 router.get(
   "/done",

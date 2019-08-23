@@ -1,7 +1,10 @@
 const jwtStrategy = require("passport-jwt").Strategy;
 const extractJWT = require("passport-jwt").ExtractJwt;
 const { jwtConfig } = require("../config/config");
-const { parentFindById } = require("../models/Student");
+const _ = require("lodash");
+const { authenticateWithId } = require("../models/Users");
+const { USER_ROLE } = require("../utils/constants");
+const { loginPayloadFormat } = require("../utils/formatResource");
 module.exports = passport => {
   passport.use(
     new jwtStrategy(
@@ -10,21 +13,40 @@ module.exports = passport => {
         secretOrKey: jwtConfig.secret
       },
       (payload, done) => {
-        parentFindById(payload.id).then(data => {
-          if (data.length > 0) {
-            const user = {
-              id: data[0].id,
-              studentNo: data[0].Students_No,
-              level: data[0].Level_Name,
-              role:payload.role,
-              name: data[0].Students_Name,
-              imageUrl: data[0].Image
-            };
-            console.log(user);
-            return done(null, user);
-          }
-          return done(null, false);
-        });
+        switch (payload.role) {
+          case USER_ROLE.Parent:
+            authenticateWithId(USER_ROLE.Parent, payload.id)
+              .then(data => {
+                return data[0];
+              })
+              .then(data => {
+                if (_.isEmpty(data)) {
+                  return done(null, false);
+                }
+                const user = loginPayloadFormat(USER_ROLE.Parent, data);
+                return done(null, user);
+              })
+              .catch(err => console.error(err));
+            break;
+
+          case USER_ROLE.Teacher:
+            authenticateWithId(USER_ROLE.Teacher, payload.id)
+              .then(data => {
+                return data[0];
+              })
+              .then(data => {
+                if (_.isEmpty(data)) {
+                  return done(null, false);
+                }
+                const user = loginPayloadFormat(USER_ROLE.Teacher, data);
+                return done(null, user);
+              })
+              .catch(err => console.error(err));
+            break;
+
+          default:
+            break;
+        }
       }
     )
   );
