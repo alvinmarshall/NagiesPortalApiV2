@@ -16,7 +16,8 @@ const {
   studentMessage,
   studentAssignment,
   studentReport,
-  classTeacher
+  classTeacher,
+  studentAnnouncement
 } = require("../models/Student");
 const passport = require("passport");
 const { ensureAuthentication } = require("../utils/validation");
@@ -117,6 +118,22 @@ router.get("/teachers", (req, res, next) => {
     }
   })(req, res, next);
 });
+//#endregion
+
+//#region Announcement
+
+//
+// ─── STUDENT ANNOUNCEMENT ───────────────────────────────────────────────────────
+//
+
+router.get("/announcement", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      studentAnnouncement(req, res, user.level);
+    }
+  })(req, res, next);
+});
+
 //#endregion
 
 module.exports = router;

@@ -141,5 +141,23 @@ module.exports = {
       });
     });
     return result;
+  },
+
+  //
+  // ─── MESSAGES FORMAT ─────────────────────────────────────────────────────────────
+  //
+
+  messageDataFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        sender: data[key].Message_BY,
+        level: data[key].Message_Level,
+        content: data[key].Message,
+        status: data[key].M_Read,
+        date: data[key].M_Date
+      });
+    });
+    return result;
   }
 };

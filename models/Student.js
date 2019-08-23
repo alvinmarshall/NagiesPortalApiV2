@@ -17,7 +17,8 @@ const _ = require("lodash");
 const {
   noDataFormat,
   showData,
-  classTeacherFormat
+  classTeacherFormat,
+  messageDataFormat
 } = require("../utils/formatResource");
 const {
   FORMAT_TYPE,
@@ -122,6 +123,24 @@ module.exports = {
           return;
         }
         const _data = classTeacherFormat(data);
+        res.send(showData(_data));
+      })
+      .catch(err => console.error(err));
+
+    //#endregion
+  },
+
+  studentAnnouncement: (req, res, level) => {
+    const sql = `SELECT 
+    id, Message_BY, M_Date, Message, Message_Level, M_Read
+    FROM message WHERE Message_Level = ? ORDER BY M_Date DESC`;
+    db.query(sql, [level])
+      .then(data => {
+        if (_.isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const _data = messageDataFormat(data);
         res.send(showData(_data));
       })
       .catch(err => console.error(err));
