@@ -1,5 +1,8 @@
 const { USER_ROLE } = require("../utils/constants");
 module.exports = {
+  showData: data => {
+    return { status: 200, data: data };
+  },
   invalidInputFormat: err => {
     return { message: "field empty", status: 400, errors: err };
   },
