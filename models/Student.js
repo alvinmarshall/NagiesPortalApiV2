@@ -18,14 +18,21 @@ const {
   noDataFormat,
   showData,
   classTeacherFormat,
-  messageDataFormat
+  messageDataFormat,
+  circularFormat,
+  fileDataFormat
 } = require("../utils/formatResource");
 const {
   FORMAT_TYPE,
   TABLE_ASSIGNMENT_IMAGE,
   TABLE_ASSIGNMENT_PDF,
   TABLE_REPORT_PDF,
-  TABLE_REPORT_IMAGE
+  TABLE_REPORT_IMAGE,
+  TABLE_STUDENT,
+  TABLE_ANNOUNCEMENT,
+  TABLE_CIRCULAR,
+  TABLE_TEACHER,
+  TABLE_MESSAGE
 } = require("../utils/constants");
 
 module.exports = {
@@ -38,14 +45,15 @@ module.exports = {
   studentMessage: (req, res, level) => {
     const sql = `SELECT 
         id, Message_BY, M_Date, Message, Message_Level, M_Read
-        FROM message WHERE Message_Level = ? ORDER BY M_Date DESC `;
+        FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC `;
     db.query(sql, [level])
       .then(data => {
         if (_.isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
-        res.send(showData(data));
+        const _data = messageDataFormat(data);
+        res.send(showData(_data));
       })
       .catch(err => console.error(err));
   },
@@ -64,12 +72,12 @@ module.exports = {
       case FORMAT_TYPE.PDF:
         table = TABLE_ASSIGNMENT_PDF;
         sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
-        getAssignmentType(req, res, sql, ref);
+        getAssignmentType(req, res, sql, ref, FORMAT_TYPE.PDF);
         break;
       case FORMAT_TYPE.IMAGE:
         table = TABLE_ASSIGNMENT_IMAGE;
         sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
-        getAssignmentType(req, res, sql, ref);
+        getAssignmentType(req, res, sql, ref, FORMAT_TYPE.IMAGE);
         break;
 
       default:
@@ -93,14 +101,14 @@ module.exports = {
         sql = `SELECT 
         Students_Name,
         Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
-        getReportType(req, res, sql, ref);
+        getReportType(req, res, sql, ref, FORMAT_TYPE.PDF);
         break;
       case FORMAT_TYPE.IMAGE:
         table = TABLE_REPORT_IMAGE;
         sql = `SELECT 
         Students_Name,
         Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
-        getReportType(req, res, sql, ref);
+        getReportType(req, res, sql, ref, FORMAT_TYPE.IMAGE);
         break;
 
       default:
@@ -115,7 +123,7 @@ module.exports = {
   // ─── CLASS TEACHER ──────────────────────────────────────────────────────────────
   //
   classTeacher: (req, res, level) => {
-    const sql = `SELECT Teachers_No, Teachers_Name, Gender, Contact, Image FROM teachers WHERE Level_Name = ?`;
+    const sql = `SELECT Teachers_No, Teachers_Name, Gender, Contact, Image FROM ${TABLE_TEACHER} WHERE Level_Name = ?`;
     db.query(sql, [level])
       .then(data => {
         if (_.isEmpty(data)) {
@@ -130,10 +138,16 @@ module.exports = {
     //#endregion
   },
 
+  //#region student announcement
+
+  //
+  // ─── STUDENT ANNOUNCEMENT ───────────────────────────────────────────────────────
+  //
+
   studentAnnouncement: (req, res, level) => {
     const sql = `SELECT 
     id, Message_BY, M_Date, Message, Message_Level, M_Read
-    FROM message WHERE Message_Level = ? ORDER BY M_Date DESC`;
+    FROM ${TABLE_ANNOUNCEMENT} WHERE Message_Level = ? ORDER BY M_Date DESC`;
     db.query(sql, [level])
       .then(data => {
         if (_.isEmpty(data)) {
@@ -144,7 +158,41 @@ module.exports = {
         res.send(showData(_data));
       })
       .catch(err => console.error(err));
+
+    //#endregion
+  },
+
+  //#region Circular
+
+  //
+  // ─── CIRCULAR ───────────────────────────────────────────────────────────────────
+  //
+
+  circular: (req, res, id) => {
+    let sql = `SELECT Faculty_Name FROM ${TABLE_STUDENT} WHERE id = ? LIMIT 1`;
+
+    db.query(sql, [id])
+      .then(data => {
+        if (_.isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const faculty = data[0].Faculty_Name;
+        sql = `SELECT id,CID,FileName,CID_Date FROM ${TABLE_CIRCULAR} WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
+        db.query(sql, [faculty])
+          .then(data => {
+            if (_.isEmpty(data)) {
+              res.status(404).send(noDataFormat());
+              return;
+            }
+            const _data = circularFormat(data);
+            res.send(showData(data));
+          })
+          .catch(err => console.error(err));
+      })
+      .catch(err => console.error(err));
   }
+  //#endregion
 };
 
 //#region Functions
@@ -153,28 +201,30 @@ module.exports = {
 //
 
 //#region function for assignment
-const getAssignmentType = (req, res, sql, ref) => {
+const getAssignmentType = (req, res, sql, ref, type) => {
   db.query(sql, [ref])
     .then(data => {
       if (_.isEmpty(data)) {
         res.send(noDataFormat());
         return;
       }
-      res.send(showData(data));
+      const _data = fileDataFormat(type, data);
+      res.send(showData(_data));
     })
     .catch(err => console.error(err));
 };
 //#endregion
 
 //#region function for report
-const getReportType = (req, res, sql, ref) => {
+const getReportType = (req, res, sql, ref, type) => {
   db.query(sql, [ref])
     .then(data => {
       if (_.isEmpty(data)) {
         res.send(noDataFormat());
         return;
       }
-      res.send(showData(data));
+      const _data = fileDataFormat(type, data);
+      res.send(showData(_data));
     })
     .catch(err => console.error(err));
 };

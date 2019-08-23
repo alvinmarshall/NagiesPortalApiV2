@@ -19,3 +19,6 @@ module.exports.TABLE_ASSIGNMENT_PDF = "assignment";
 module.exports.TABLE_ASSIGNMENT_IMAGE = "assignment_image";
 module.exports.TABLE_REPORT_PDF = "report";
 module.exports.TABLE_REPORT_IMAGE = "report_png";
+module.exports.TABLE_ANNOUNCEMENT = "message";
+module.exports.TABLE_CIRCULAR = "circular";
+module.exports.TABLE_MESSAGE = "message";

@@ -18,7 +18,7 @@ module.exports = {
   //
 
   showData: data => {
-    return { status: 200, data: data };
+    return { status: 200, count: data.length, data: data };
   },
 
   //
@@ -156,6 +156,41 @@ module.exports = {
         content: data[key].Message,
         status: data[key].M_Read,
         date: data[key].M_Date
+      });
+    });
+    return result;
+  },
+
+  //
+  // ─── CIRCULAR FORMAT ────────────────────────────────────────────────────────────
+  //
+
+  circularFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        id: data[key].id,
+        cid: data[key].CID,
+        fileUrl: data[key].FileName,
+        date: data[key].CID_Date
+      });
+      return result;
+    });
+  },
+
+  //
+  // ─── FILE DATA FORMAT ───────────────────────────────────────────────────────────
+  //
+
+  fileDataFormat: (type, data) => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        studentName: data[key].Students_Name,
+        teacherEmail: data[key].Teachers_Email,
+        fileUrl: data[key].Report_File,
+        format: type,
+        date: data[key].Report_Date
       });
     });
     return result;
