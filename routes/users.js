@@ -4,7 +4,8 @@ const jsonWebToken = require("jsonwebtoken");
 const {
   authParentWithUsername,
   authTeacherWithUsername,
-  changeAccountPassword
+  changeAccountPassword,
+  profileAccount
 } = require("../models/Users");
 const { jwtConfig } = require("../config/config");
 const passport = require("passport");
@@ -12,7 +13,7 @@ const {
   changePasswordValidation,
   ensureAuthentication
 } = require("../utils/validation");
-const {USER_ROLE} = require("../utils/constants");
+const { USER_ROLE } = require("../utils/constants");
 
 //#endregion parent login
 router.post("/parent", (req, res, next) => {
@@ -78,26 +79,33 @@ router.post("/teacher", (req, res, next) => {
 });
 //#endregion
 
+//#region Change Password
 router.post("/change_password", (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
-    if (ensureAuthentication(res, err, info)) {
+    if (ensureAuthentication(err, res, info)) {
       const errors = changePasswordValidation(req);
       if (errors.length > 0) {
         res
           .status(400)
           .send({ message: "field empty", status: 400, errors: errors });
       } else {
-        const changePass = {
-          id: user.id,
-          old: req.body.old_password,
-          new: req.body.new_password,
-          confirm: req.body.confirm_password
-        };
-        changeAccountPassword(res, user.role, changePass);
+        changeAccountPassword(req, res, user);
       }
     }
   })(req, res, next);
 });
+
+//#endregion
+
+//#region Profile
+router.get("/profile", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      profileAccount(res, user.role, user.id);
+    }
+  })(req, res, next);
+});
+//#endregion
 
 router.get(
   "/done",
