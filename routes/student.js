@@ -15,7 +15,8 @@ const router = express.Router();
 const {
   studentMessage,
   studentAssignment,
-  studentReport
+  studentReport,
+  classTeacher
 } = require("../models/Student");
 const passport = require("passport");
 const { ensureAuthentication } = require("../utils/validation");
@@ -102,4 +103,20 @@ router.get("/report_image", (req, res, next) => {
 });
 
 //#endregion
+
+//#region class teachers
+
+//
+// ─── CLASS TEACHERS ─────────────────────────────────────────────────────────────
+//
+
+router.get("/teachers", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      classTeacher(req, res, user.level);
+    }
+  })(req, res, next);
+});
+//#endregion
+
 module.exports = router;

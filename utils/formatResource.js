@@ -11,6 +11,7 @@
 //
 
 const { USER_ROLE } = require("../utils/constants");
+const _ = require("lodash");
 module.exports = {
   //
   // ─── SHOW DATA FORMAT──────────────────────────────────────────────────────────────────
@@ -122,5 +123,23 @@ module.exports = {
       default:
         return {};
     }
+  },
+
+  //
+  // ─── CLASS TEACHER FORMAT ───────────────────────────────────────────────────────
+  //
+
+  classTeacherFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        uid: data[key].Teachers_No,
+        teacherName: data[key].Teachers_Name,
+        gender: data[key].Gender,
+        contact: data[key].Contact,
+        imageUrl: data[key].Image
+      });
+    });
+    return result;
   }
 };

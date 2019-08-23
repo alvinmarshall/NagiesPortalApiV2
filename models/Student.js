@@ -14,7 +14,11 @@ const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
 const _ = require("lodash");
-const { noDataFormat, showData } = require("../utils/formatResource");
+const {
+  noDataFormat,
+  showData,
+  classTeacherFormat
+} = require("../utils/formatResource");
 const {
   FORMAT_TYPE,
   TABLE_ASSIGNMENT_IMAGE,
@@ -101,8 +105,27 @@ module.exports = {
       default:
         break;
     }
-  }
+  },
   //#endregion
+
+  //#region class teacher
+
+  //
+  // ─── CLASS TEACHER ──────────────────────────────────────────────────────────────
+  //
+  classTeacher: (req, res, level) => {
+    const sql = `SELECT Teachers_No, Teachers_Name, Gender, Contact, Image FROM teachers WHERE Level_Name = ?`;
+    db.query(sql, [level])
+      .then(data => {
+        if (_.isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const _data = classTeacherFormat(data);
+        res.send(showData(_data));
+      })
+      .catch(err => console.error(err));
+  }
 };
 
 //#region Functions
