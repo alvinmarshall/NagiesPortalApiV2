@@ -1,7 +1,10 @@
 const jwtStrategy = require("passport-jwt").Strategy;
 const extractJWT = require("passport-jwt").ExtractJwt;
 const { jwtConfig } = require("../config/config");
-const { parentFindById, teacherFindById } = require("../models/Users");
+const _ = require("lodash");
+const { authenticateWithId } = require("../models/Users");
+const { USER_ROLE } = require("../utils/constants");
+const { loginPayloadFormat } = require("../utils/formatResource");
 module.exports = passport => {
   passport.use(
     new jwtStrategy(
@@ -11,45 +14,34 @@ module.exports = passport => {
       },
       (payload, done) => {
         switch (payload.role) {
-          case "parent":
-            parentFindById(payload.id)
+          case USER_ROLE.Parent:
+            authenticateWithId(USER_ROLE.Parent, payload.id)
               .then(data => {
-                if (data.length > 0) {
-                  const user = {
-                    id: data[0].id,
-                    ref: data[0].Students_No,
-                    level: data[0].Level_Name,
-                    role: payload.role,
-                    username: data[0].Index_No,
-                    name: data[0].Students_Name,
-                    imageUrl: data[0].Image
-                  };
-                  return done(null, user);
+                return data[0];
+              })
+              .then(data => {
+                if (_.isEmpty(data)) {
+                  return done(null, false);
                 }
-                return done(null, false);
+                const user = loginPayloadFormat(USER_ROLE.Parent, data);
+                return done(null, user);
               })
               .catch(err => console.error(err));
             break;
 
-          case "teacher":
-            teacherFindById(payload.id)
+          case USER_ROLE.Teacher:
+            authenticateWithId(USER_ROLE.Teacher, payload.id)
               .then(data => {
-                if (data.length > 0) {
-                  const user = {
-                    id: data[0].id,
-                    ref: data[0].Teachers_No,
-                    level: data[0].Level_Name,
-                    role: payload.role,
-                    username: data[0].Username,
-                    name: data[0].Teachers_Name,
-                    imageUrl: data[0].Image
-                  };
-                  return done(null, user);
+                return data[0];
+              })
+              .then(data => {
+                if (_.isEmpty(data)) {
+                  return done(null, false);
                 }
-                return done(null, false);
+                const user = loginPayloadFormat(USER_ROLE.Teacher, data);
+                return done(null, user);
               })
               .catch(err => console.error(err));
-
             break;
 
           default:

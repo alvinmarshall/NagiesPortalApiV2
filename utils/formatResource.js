@@ -1,7 +1,39 @@
 const { USER_ROLE } = require("../utils/constants");
 module.exports = {
+  invalidInputFormat: err => {
+    return { message: "field empty", status: 400, errors: err };
+  },
   noDataFormat: () => {
     return { message: "No Data Available", status: 404 };
+  },
+  authenticationFailedFormat: () => {
+    return { message: "authentication failed", status: 401 };
+  },
+  loginPayloadFormat: (role, data) => {
+    switch (role) {
+      case USER_ROLE.Parent:
+        return {
+          id: data.id,
+          ref: data.Students_No,
+          level: data.Level_Name,
+          role: USER_ROLE.Parent,
+          username: data.Index_No,
+          name: data.Students_Name,
+          imageUrl: data.Image
+        };
+      case USER_ROLE.Teacher:
+        return {
+          id: data.id,
+          ref: data.Teachers_No,
+          level: data.Level_Name,
+          role: USER_ROLE.Teacher,
+          username: data.Username,
+          name: data.Teachers_Name,
+          imageUrl: data.Image
+        };
+      default:
+        return {};
+    }
   },
   profileFormat: (role, data) => {
     const profile = {};
