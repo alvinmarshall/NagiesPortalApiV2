@@ -11,6 +11,7 @@
 //
 
 const _ = require("lodash");
+const { USER_ROLE } = require("../utils/constants");
 
 module.exports = {
   //
@@ -64,6 +65,21 @@ module.exports = {
         message: "authentication failed",
         error: info.message,
         status: 401
+      });
+      return false;
+    }
+    return true;
+  },
+
+  //
+  // ─── USER PERMISSION ────────────────────────────────────────────────────────────
+  //
+
+  permissionMiddleWare: (res, allow, role) => {
+    if (allow !== role) {
+      res.status(403).send({
+        message: "current permission doesn't allow this request",
+        status: 403
       });
       return false;
     }
