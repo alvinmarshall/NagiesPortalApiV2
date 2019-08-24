@@ -20,7 +20,8 @@ const {
   classTeacherFormat,
   messageDataFormat,
   circularFormat,
-  fileDataFormat
+  fileDataFormat,
+  billDataFormat
 } = require("../utils/formatResource");
 const {
   FORMAT_TYPE,
@@ -32,7 +33,8 @@ const {
   TABLE_ANNOUNCEMENT,
   TABLE_CIRCULAR,
   TABLE_TEACHER,
-  TABLE_MESSAGE
+  TABLE_MESSAGE,
+  TABLE_BILLING
 } = require("../utils/constants");
 
 module.exports = {
@@ -189,6 +191,27 @@ module.exports = {
             res.send(showData(data));
           })
           .catch(err => console.error(err));
+      })
+      .catch(err => console.error(err));
+  },
+  //#endregion
+
+  //#region student bills
+  //
+  // ─── STUDENT BILLS ──────────────────────────────────────────────────────────────
+  //
+
+  studentBills: (req, res, ref) => {
+    const sql = `SELECT id, Students_No, Students_Name, Uploader, Bill_File, Report_Date 
+      FROM ${TABLE_BILLING} WHERE Students_No = ? ORDER BY Report_Date DESC`;
+    db.query(sql, [ref])
+      .then(data => {
+        if (_.isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const _data = billDataFormat(data);
+        res.send(showData(_data));
       })
       .catch(err => console.error(err));
   }

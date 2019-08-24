@@ -194,5 +194,23 @@ module.exports = {
       });
     });
     return result;
+  },
+
+  //
+  // ─── BILLING FORMAT ─────────────────────────────────────────────────────────────
+  //
+
+  billDataFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        id: data[key].id,
+        refNo: data[key].Students_No,
+        sender: data[key].Uploader,
+        fileUrl: data[key].Bill_File,
+        date: data[key].Report_Date
+      });
+    });
+    return result;
   }
 };

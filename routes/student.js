@@ -18,7 +18,8 @@ const {
   studentReport,
   classTeacher,
   studentAnnouncement,
-  circular
+  circular,
+  studentBills
 } = require("../models/Student");
 const passport = require("passport");
 const { ensureAuthentication } = require("../utils/validation");
@@ -149,6 +150,21 @@ router.get("/circular", (req, res, next) => {
     }
   })(req, res, next);
 });
+//#endregion
+
+//#region student billing
+
+//
+// ─── STUDENT BILLS ────────────────────────────────────────────────────────────────────
+//
+router.get("/billing", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      studentBills(req, res, user.ref);
+    }
+  })(req, res, next);
+});
+
 //#endregion
 
 module.exports = router;
