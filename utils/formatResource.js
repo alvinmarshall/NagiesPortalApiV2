@@ -1,17 +1,54 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:49:41
+ * @modify date 2019-08-23 18:49:41
+ * @desc resource formatter utility
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const { USER_ROLE } = require("../utils/constants");
+const _ = require("lodash");
 module.exports = {
+  //
+  // ─── SHOW DATA FORMAT──────────────────────────────────────────────────────────────────
+  //
+
   showData: data => {
-    return { status: 200, data: data };
+    return { status: 200, count: data.length, data: data };
   },
+
+  //
+  // ─── INVALID INPUT FORMAT ───────────────────────────────────────────────────────
+  //
+
   invalidInputFormat: err => {
     return { message: "field empty", status: 400, errors: err };
   },
+
+  //
+  // ─── NO DATA FORMAT ─────────────────────────────────────────────────────────────
+  //
+
   noDataFormat: () => {
     return { message: "No Data Available", status: 404 };
   },
+
+  //
+  // ─── AUTHENTICATION FAILED FORMAT ───────────────────────────────────────────────
+  //
+
   authenticationFailedFormat: () => {
     return { message: "authentication failed", status: 401 };
   },
+
+  //
+  // ─── LOGIN PAYLOAD FORMAT ───────────────────────────────────────────────────────
+  //
+
   loginPayloadFormat: (role, data) => {
     switch (role) {
       case USER_ROLE.Parent:
@@ -38,6 +75,11 @@ module.exports = {
         return {};
     }
   },
+
+  //
+  // ─── PROFILE FORMAT ─────────────────────────────────────────────────────────────
+  //
+
   profileFormat: (role, data) => {
     const profile = {};
     switch (role) {
@@ -81,5 +123,94 @@ module.exports = {
       default:
         return {};
     }
+  },
+
+  //
+  // ─── CLASS TEACHER FORMAT ───────────────────────────────────────────────────────
+  //
+
+  classTeacherFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        uid: data[key].Teachers_No,
+        teacherName: data[key].Teachers_Name,
+        gender: data[key].Gender,
+        contact: data[key].Contact,
+        imageUrl: data[key].Image
+      });
+    });
+    return result;
+  },
+
+  //
+  // ─── MESSAGES FORMAT ─────────────────────────────────────────────────────────────
+  //
+
+  messageDataFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        sender: data[key].Message_BY,
+        level: data[key].Message_Level,
+        content: data[key].Message,
+        status: data[key].M_Read,
+        date: data[key].M_Date
+      });
+    });
+    return result;
+  },
+
+  //
+  // ─── CIRCULAR FORMAT ────────────────────────────────────────────────────────────
+  //
+
+  circularFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        id: data[key].id,
+        cid: data[key].CID,
+        fileUrl: data[key].FileName,
+        date: data[key].CID_Date
+      });
+      return result;
+    });
+  },
+
+  //
+  // ─── FILE DATA FORMAT ───────────────────────────────────────────────────────────
+  //
+
+  fileDataFormat: (type, data) => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        studentName: data[key].Students_Name,
+        teacherEmail: data[key].Teachers_Email,
+        fileUrl: data[key].Report_File,
+        format: type,
+        date: data[key].Report_Date
+      });
+    });
+    return result;
+  },
+
+  //
+  // ─── BILLING FORMAT ─────────────────────────────────────────────────────────────
+  //
+
+  billDataFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        id: data[key].id,
+        refNo: data[key].Students_No,
+        sender: data[key].Uploader,
+        fileUrl: data[key].Bill_File,
+        date: data[key].Report_Date
+      });
+    });
+    return result;
   }
 };

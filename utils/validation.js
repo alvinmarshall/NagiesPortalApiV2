@@ -1,6 +1,22 @@
+/**
+ * @author Kelvin Birikorang
+ * @email kelvinbirikorang@mail.com
+ * @create date 2019-08-23 18:56:48
+ * @modify date 2019-08-23 18:56:48
+ * @desc validators utility
+ */
+
+//
+// ─── IMPORT ─────────────────────────────────────────────────────────────────────
+//
+
 const _ = require("lodash");
 
 module.exports = {
+  //
+  // ─── LOGIN INPUT VALIDATION ─────────────────────────────────────────────────────
+  //
+
   loginInputValidation: req => {
     let errors = {};
     if (_.isEmpty(_.trim(req.body.username))) {
@@ -12,6 +28,11 @@ module.exports = {
     }
     return errors;
   },
+
+  //
+  // ─── CHANGE PASSWORD VALIDATION ─────────────────────────────────────────────────
+  //
+
   changePasswordValidation: req => {
     let errors = {};
     if (_.isEmpty(_.trim(req.body.old_password))) {
@@ -28,6 +49,10 @@ module.exports = {
     }
     return errors;
   },
+
+  //
+  // ─── ENSURE ROUTE AUTHENTICATION ────────────────────────────────────────────────
+  //
 
   ensureAuthentication: (err, res, info) => {
     if (err) {
