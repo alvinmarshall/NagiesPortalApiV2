@@ -212,5 +212,26 @@ module.exports = {
       });
     });
     return result;
+  },
+
+  //
+  // ─── COMPLAINT MESSAGE ──────────────────────────────────────────────────────────
+  //
+
+  complaintDataFormat: data => {
+    let result = [];
+    _.forEach(data, (value, key) => {
+      result.push({
+        studentNo: data[key].Students_No,
+        studentName: data[key].Students_Name,
+        level: data[key].Level_Name,
+        guardianName: data[key].Guardian_Name,
+        guardianContact: data[key].Guardian_No,
+        teacherName: data[key].Teachers_Name,
+        message: data[key].Message,
+        date: data[key].Message_Date
+      });
+    });
+    return result;
   }
 };

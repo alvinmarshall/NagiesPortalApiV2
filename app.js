@@ -27,6 +27,7 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const passport = require("passport");
 const studentRouter = require("./routes/student");
+const teacherRouter = require("./routes/teacher");
 const app = express();
 
 //
@@ -49,6 +50,7 @@ app.use(express.static(path.join(__dirname, process.env.ASSERT_DIR)));
 app.use("/", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/students", studentRouter);
+app.use("/api/teachers", teacherRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

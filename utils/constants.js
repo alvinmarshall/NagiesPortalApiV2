@@ -23,3 +23,4 @@ module.exports.TABLE_ANNOUNCEMENT = "message";
 module.exports.TABLE_CIRCULAR = "circular";
 module.exports.TABLE_MESSAGE = "message";
 module.exports.TABLE_BILLING = "billing";
+module.exports.TABLE_COMPLAINTS = "complaints"
