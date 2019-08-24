@@ -6,7 +6,7 @@ const {
   permissionMiddleWare
 } = require("../utils/validation");
 const { USER_ROLE } = require("../utils/constants");
-const { parentComplaints } = require("../models/Teacher");
+const { parentComplaints, teacherAnnouncement } = require("../models/Teacher");
 
 //#region parent complaints
 
@@ -24,5 +24,24 @@ router.get("/complaints", (req, res, next) => {
     }
   })(req, res, next);
 });
+
+//#endregion
+
+//#region teachers announcement
+//
+// ─── TEACHER ANNOUNCEMENT MESSAGES ──────────────────────────────────────────────
+//
+
+router.get("/announcement", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      teacherAnnouncement(req, res);
+    }
+  })(req, res, next);
+});
+//#endregion
 
 module.exports = router;

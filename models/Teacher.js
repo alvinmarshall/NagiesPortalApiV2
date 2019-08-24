@@ -6,7 +6,7 @@ const { TABLE_COMPLAINTS, TABLE_MESSAGE } = require("../utils/constants");
 const {
   noDataFormat,
   complaintDataFormat,
-  showData
+  showData,messageDataFormat
 } = require("../utils/formatResource");
 module.exports = {
   //#region parrent complaint
@@ -26,6 +26,29 @@ module.exports = {
           return;
         }
         const _data = complaintDataFormat(data);
+        res.send(showData(_data));
+      })
+      .catch(err => console.error(err));
+  },
+  //#endregion
+
+   //#region announcement messages
+
+  //
+  // ─── TEACHER ANNNOUNCMENT MESSAGE ───────────────────────────────────────────────
+  //
+
+  teacherAnnouncement: (req, res, from = "administrator") => {
+    const sql = `SELECT 
+      id, Message_BY, M_Date, Message, Message_Level, M_Read
+      FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC`;
+    db.query(sql, [from])
+      .then(data => {
+        if (_.isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const _data = messageDataFormat(data);
         res.send(showData(_data));
       })
       .catch(err => console.error(err));
