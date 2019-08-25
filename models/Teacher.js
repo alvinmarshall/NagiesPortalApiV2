@@ -1,13 +1,15 @@
 const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
-const _ = require("lodash");
+const { isEmpty } = require("lodash");
 const { TABLE_COMPLAINTS, TABLE_MESSAGE } = require("../utils/constants");
 const {
   noDataFormat,
   complaintDataFormat,
-  showData,messageDataFormat
+  showData,
+  messageDataFormat
 } = require("../utils/formatResource");
+const { uploadFile } = require("../utils/fileUtil");
 module.exports = {
   //#region parrent complaint
 
@@ -21,7 +23,7 @@ module.exports = {
             where Level_Name = ? ORDER BY Message_Date DESC`;
     db.query(sql, [level])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -32,7 +34,7 @@ module.exports = {
   },
   //#endregion
 
-   //#region announcement messages
+  //#region announcement messages
 
   //
   // ─── TEACHER ANNNOUNCMENT MESSAGE ───────────────────────────────────────────────
@@ -44,7 +46,7 @@ module.exports = {
       FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC`;
     db.query(sql, [from])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -52,6 +54,20 @@ module.exports = {
         res.send(showData(_data));
       })
       .catch(err => console.error(err));
+  },
+  //#endregion
+
+  //#region teacher upload
+
+  //
+  // ─── TEACHER UPLOADS ────────────────────────────────────────────────────────────
+  //
+
+  teacherUpload: (req, res, dbTable, user) => {
+    uploadFile(req, res, dbTable, user);
   }
   //#endregion
 };
+
+//#region Functions
+//#endregion

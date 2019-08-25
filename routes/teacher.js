@@ -6,7 +6,15 @@ const {
   permissionMiddleWare
 } = require("../utils/validation");
 const { USER_ROLE } = require("../utils/constants");
-const { parentComplaints, teacherAnnouncement } = require("../models/Teacher");
+const {
+  parentComplaints,
+  teacherAnnouncement,
+  teacherUpload
+} = require("../models/Teacher");
+const {
+  TABLE_ASSIGNMENT_PDF,
+  TABLE_ASSIGNMENT_IMAGE
+} = require("../utils/constants");
 
 //#region parent complaints
 
@@ -42,6 +50,36 @@ router.get("/announcement", (req, res, next) => {
     }
   })(req, res, next);
 });
+//#endregion
+
+//#region upload
+
+//
+// ─── UPLOAD STUDENT ASSIGNMENT PDF ──────────────────────────────────────────────────
+//
+
+router.post("/upload_assignment_pdf", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      teacherUpload(req, res, TABLE_ASSIGNMENT_PDF, user);
+    }
+  })(req, res, next);
+});
+
+router.post("/upload_assignment_image", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      teacherUpload(req, res, TABLE_ASSIGNMENT_IMAGE, user);
+    }
+  })(req, res, next);
+});
+
 //#endregion
 
 module.exports = router;

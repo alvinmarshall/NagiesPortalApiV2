@@ -10,8 +10,7 @@
 // ─── IMPORT ─────────────────────────────────────────────────────────────────────
 //
 
-const _ = require("lodash");
-const { USER_ROLE } = require("../utils/constants");
+const { isEmpty, trim, isEqual } = require("lodash");
 
 module.exports = {
   //
@@ -20,11 +19,11 @@ module.exports = {
 
   loginInputValidation: req => {
     let errors = {};
-    if (_.isEmpty(_.trim(req.body.username))) {
+    if (isEmpty(trim(req.body.username))) {
       errors.username = "username field empty";
     }
 
-    if (_.isEmpty(_.trim(req.body.password))) {
+    if (isEmpty(trim(req.body.password))) {
       errors.password = "password field empty";
     }
     return errors;
@@ -36,16 +35,16 @@ module.exports = {
 
   changePasswordValidation: req => {
     let errors = {};
-    if (_.isEmpty(_.trim(req.body.old_password))) {
+    if (isEmpty(trim(req.body.old_password))) {
       errors.old_password = "provide current password";
     }
-    if (_.isEmpty(_.trim(req.body.new_password))) {
+    if (isEmpty(trim(req.body.new_password))) {
       errors.new_password = "new password invalid";
     }
-    if (_.isEmpty(_.trim(req.body.confirm_password))) {
+    if (isEmpty(trim(req.body.confirm_password))) {
       errors.confirm_password = "confirm password invalid";
     }
-    if (!_.isEqual(req.body.new_password, req.body.confirm_password)) {
+    if (!isEqual(req.body.new_password, req.body.confirm_password)) {
       errors.check = "new password set mismatch";
     }
     return errors;
@@ -81,6 +80,18 @@ module.exports = {
         message: "current permission doesn't allow this request",
         status: 403
       });
+      return false;
+    }
+    return true;
+  },
+
+  //
+  // ─── FILE VALIDATION ────────────────────────────────────────────────────────────
+  //
+
+  fileFieldValidation: (req, res) => {
+    if (isEqual(req.files)) {
+      res.status(400).send({ message: "No files were uploaded", status: 400 });
       return false;
     }
     return true;

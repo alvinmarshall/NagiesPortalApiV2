@@ -11,7 +11,7 @@
 //
 
 const { USER_ROLE } = require("../utils/constants");
-const _ = require("lodash");
+const { forEach } = require("lodash");
 module.exports = {
   //
   // ─── SHOW DATA FORMAT──────────────────────────────────────────────────────────────────
@@ -131,7 +131,7 @@ module.exports = {
 
   classTeacherFormat: data => {
     let result = [];
-    _.forEach(data, (value, key) => {
+    forEach(data, (value, key) => {
       result.push({
         uid: data[key].Teachers_No,
         teacherName: data[key].Teachers_Name,
@@ -149,7 +149,7 @@ module.exports = {
 
   messageDataFormat: data => {
     let result = [];
-    _.forEach(data, (value, key) => {
+    forEach(data, (value, key) => {
       result.push({
         sender: data[key].Message_BY,
         level: data[key].Message_Level,
@@ -167,7 +167,7 @@ module.exports = {
 
   circularFormat: data => {
     let result = [];
-    _.forEach(data, (value, key) => {
+    forEach(data, (value, key) => {
       result.push({
         id: data[key].id,
         cid: data[key].CID,
@@ -184,7 +184,7 @@ module.exports = {
 
   fileDataFormat: (type, data) => {
     let result = [];
-    _.forEach(data, (value, key) => {
+    forEach(data, (value, key) => {
       result.push({
         studentName: data[key].Students_Name,
         teacherEmail: data[key].Teachers_Email,
@@ -202,7 +202,7 @@ module.exports = {
 
   billDataFormat: data => {
     let result = [];
-    _.forEach(data, (value, key) => {
+    forEach(data, (value, key) => {
       result.push({
         id: data[key].id,
         refNo: data[key].Students_No,
@@ -220,7 +220,7 @@ module.exports = {
 
   complaintDataFormat: data => {
     let result = [];
-    _.forEach(data, (value, key) => {
+    forEach(data, (value, key) => {
       result.push({
         studentNo: data[key].Students_No,
         studentName: data[key].Students_Name,
@@ -233,5 +233,17 @@ module.exports = {
       });
     });
     return result;
+  },
+
+  //
+  // ─── UPLOAD FORMAT ──────────────────────────────────────────────────────────────
+  //
+
+  uploadedDataFormat: (row, path, format) => {
+    return {
+      id: row.insertId,
+      fileUrl: path,
+      format: format
+    };
   }
 };
