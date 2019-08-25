@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "express": "~4.16.1",
     "express-fileupload": "^1.1.5",
+    "firebase-admin": "^8.4.0",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",

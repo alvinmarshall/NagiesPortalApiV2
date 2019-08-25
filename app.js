@@ -29,6 +29,8 @@ const passport = require("passport");
 const studentRouter = require("./routes/student");
 const teacherRouter = require("./routes/teacher");
 const fileUpload = require("express-fileupload");
+const firebase = require("firebase-admin");
+const {serviceKey} = require("./config/config");
 const app = express();
 
 //
@@ -49,6 +51,12 @@ app.use(express.urlencoded({ extended: false }));
 
 // file upload
 app.use(fileUpload());
+
+// firebase config
+firebase.initializeApp({
+  credential:firebase.credential.cert(serviceKey),
+  databaseURL: "https://nagieseducationalcenter.firebaseio.com"
+})
 
 //routes
 app.use("/", indexRouter);
@@ -72,4 +80,6 @@ app.use((err, req, res, next) => {
   res.send({ message: "endpoint unavaialble", status: 404 });
   next();
 });
+
+// console.log(serviceKey)
 module.exports = app;
