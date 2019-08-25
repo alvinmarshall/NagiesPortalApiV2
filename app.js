@@ -28,6 +28,7 @@ const usersRouter = require("./routes/users");
 const passport = require("passport");
 const studentRouter = require("./routes/student");
 const teacherRouter = require("./routes/teacher");
+const fileUpload = require("express-fileupload");
 const app = express();
 
 //
@@ -44,7 +45,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //path
-app.use(express.static(path.join(__dirname, process.env.ASSERT_DIR)));
+// app.use(express.static(path.join(__dirname, process.env.ASSERT_DIR)));
+
+// file upload
+app.use(fileUpload());
 
 //routes
 app.use("/", indexRouter);
