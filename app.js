@@ -27,6 +27,10 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const passport = require("passport");
 const studentRouter = require("./routes/student");
+const teacherRouter = require("./routes/teacher");
+const fileUpload = require("express-fileupload");
+const firebase = require("firebase-admin");
+const { serviceKey, databaseUrl } = require("./config/config");
 const app = express();
 
 //
@@ -43,12 +47,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //path
-app.use(express.static(path.join(__dirname, process.env.ASSERT_DIR)));
+app.use(express.static(path.join(__dirname, process.env.ASSET_DIR)));
+// file upload
+app.use(fileUpload());
+
+// firebase config
+firebase.initializeApp({
+  credential: firebase.credential.cert(serviceKey),
+  databaseURL: databaseUrl.url
+});
 
 //routes
 app.use("/", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/students", studentRouter);
+app.use("/api/teachers", teacherRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -66,4 +79,6 @@ app.use((err, req, res, next) => {
   res.send({ message: "endpoint unavaialble", status: 404 });
   next();
 });
+
+// console.log(serviceKey)
 module.exports = app;

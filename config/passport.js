@@ -1,4 +1,4 @@
-const jwtStrategy = require("passport-jwt").Strategy;
+const JWTStrategy = require("passport-jwt").Strategy;
 const extractJWT = require("passport-jwt").ExtractJwt;
 const { jwtConfig } = require("../config/config");
 const _ = require("lodash");
@@ -7,7 +7,7 @@ const { USER_ROLE } = require("../utils/constants");
 const { loginPayloadFormat } = require("../utils/formatResource");
 module.exports = passport => {
   passport.use(
-    new jwtStrategy(
+    new JWTStrategy(
       {
         jwtFromRequest: extractJWT.fromAuthHeaderAsBearerToken(),
         secretOrKey: jwtConfig.secret
