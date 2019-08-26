@@ -2,14 +2,20 @@ const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
 const { isEmpty } = require("lodash");
-const { TABLE_COMPLAINTS, TABLE_MESSAGE } = require("../utils/constants");
+const {
+  TABLE_COMPLAINTS,
+  TABLE_MESSAGE,
+  FIREBASE_TOPIC
+} = require("../utils/constants");
 const {
   noDataFormat,
   complaintDataFormat,
   showData,
-  messageDataFormat
+  messageDataFormat,
+  firebaseTopicPayload
 } = require("../utils/formatResource");
 const { uploadFile } = require("../utils/fileUtil");
+const { sendTopicMessage } = require("../notification/firebase");
 module.exports = {
   //#region parrent complaint
 
@@ -65,6 +71,37 @@ module.exports = {
 
   teacherUpload: (req, res, dbTable, user) => {
     uploadFile(req, res, dbTable, user);
+  },
+  //#endregion
+
+  //#region send message to parent
+
+  //
+  // ─── SEND MESSAGE TO PARENT ─────────────────────────────────────────────────────
+  //
+
+  sendMessageToParent: (req, res, user) => {
+    const sql = `INSERT INTO message SET Message_BY = ?, Message = ?,Message_Level = ?`;
+    db.query(sql, [user.username, req.body.message, user.level])
+      .then(row => {
+        if (isEmpty(row)) {
+          res.status(500).send({ message: "message failed", status: 500 });
+          return;
+        }
+        const message = firebaseTopicPayload(
+          "message from teacher",
+          req.body.message,
+          FIREBASE_TOPIC.Parent
+        );
+
+        sendTopicMessage(message)
+          .then(response => {
+            console.log(`firebase message success ${response}`);
+          })
+          .catch(err => console.error(err));
+        res.send({ message: "message sent", status: 200, id: row.insertId });
+      })
+      .catch(err => console.error(err));
   }
   //#endregion
 };

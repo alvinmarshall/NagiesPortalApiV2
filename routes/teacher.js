@@ -3,13 +3,15 @@ const router = express.Router();
 const passport = require("passport");
 const {
   ensureAuthentication,
-  permissionMiddleWare
+  permissionMiddleWare,
+  messageInputValidation
 } = require("../utils/validation");
 const { USER_ROLE } = require("../utils/constants");
 const {
   parentComplaints,
   teacherAnnouncement,
-  teacherUpload
+  teacherUpload,
+  sendMessageToParent
 } = require("../models/Teacher");
 const {
   TABLE_ASSIGNMENT_PDF,
@@ -80,6 +82,26 @@ router.post("/upload_assignment_image", (req, res, next) => {
   })(req, res, next);
 });
 
+//#endregion
+
+//#region send message to parent
+
+//
+// ─── SEND MESSAGE TO PARENT ─────────────────────────────────────────────────────
+//
+
+router.post("/send_message", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      if (messageInputValidation(req, res)) {
+        sendMessageToParent(req, res, user);
+      }
+    }
+  })(req, res, next);
+});
 //#endregion
 
 module.exports = router;

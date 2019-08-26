@@ -245,5 +245,19 @@ module.exports = {
       fileUrl: path,
       format: format
     };
+  },
+
+  //
+  // ─── FIREBASE MESSAGE PAYLOAD ───────────────────────────────────────────────────
+  //
+
+  firebaseTopicPayload: (title, message, topic) => {
+    return {
+      data: {
+        message: message,
+        title: title
+      },
+      topic: topic
+    };
   }
 };

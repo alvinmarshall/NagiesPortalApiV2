@@ -95,5 +95,23 @@ module.exports = {
       return false;
     }
     return true;
+  },
+
+  //
+  // ─── MESSAGE VALIDATION ─────────────────────────────────────────────────────────
+  //
+
+  messageInputValidation: (req, res) => {
+    let errors = {};
+    if (isEmpty(trim(req.body.message))) {
+      errors.message = "message content can't be empty";
+    }
+    if (!isEmpty(errors)) {
+      res
+        .status(400)
+        .send({ message: "Field empty", status: 400, errors: errors });
+      return false;
+    }
+    return true;
   }
 };

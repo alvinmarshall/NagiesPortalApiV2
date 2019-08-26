@@ -30,7 +30,7 @@ const studentRouter = require("./routes/student");
 const teacherRouter = require("./routes/teacher");
 const fileUpload = require("express-fileupload");
 const firebase = require("firebase-admin");
-const {serviceKey} = require("./config/config");
+const { serviceKey, databaseUrl } = require("./config/config");
 const app = express();
 
 //
@@ -47,16 +47,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //path
-// app.use(express.static(path.join(__dirname, process.env.ASSERT_DIR)));
-
+app.use(express.static(path.join(__dirname, process.env.ASSET_DIR)));
 // file upload
 app.use(fileUpload());
 
 // firebase config
 firebase.initializeApp({
-  credential:firebase.credential.cert(serviceKey),
-  databaseURL: "https://nagieseducationalcenter.firebaseio.com"
-})
+  credential: firebase.credential.cert(serviceKey),
+  databaseURL: databaseUrl.url
+});
 
 //routes
 app.use("/", indexRouter);

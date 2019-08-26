@@ -113,8 +113,10 @@ const prepareToUploadFile = (req, res, dbTable, dir, user) => {
       res.status(400).send({ message: "Set form field to file", status: 400 });
       return;
     }
-    directoryUtil(dir);
-    let filepath = `${dir}/${fileToUpload.name}`;
+
+    let publicPath = `public${dir}`;
+    directoryUtil(publicPath);
+    let filepath = `${publicPath}/${fileToUpload.name}`;
     fileToUpload.mv(filepath, err => {
       if (err) {
         console.error(err);
@@ -122,7 +124,8 @@ const prepareToUploadFile = (req, res, dbTable, dir, user) => {
         return;
       }
       const format = fileFormatType(fileToUpload.mimetype);
-      saveFilePathToDB(res, format, filepath, dbTable, user);
+      const destination = `.${dir}/${fileToUpload.name}`;
+      saveFilePathToDB(res, format, destination, dbTable, user);
     });
   }
 };
