@@ -150,5 +150,27 @@ module.exports = {
       return cb(null, true);
     }
     return cb(null, false);
+  },
+
+  //
+  // ─── GET TEACHER INFORMATION ────────────────────────────────────────────────────
+  //
+
+  complaintFieldValidation: (req, cb) => {
+    let errors = {};
+    if (isEmpty(trim(req.body.teacherName))) {
+      errors.teacherName = "teacher name required for this action";
+    }
+    if (isEmpty(trim(req.body.message))) {
+      errors.message = "message content can't be empty";
+    }
+    if (!isEmpty(errors)) {
+      return cb({ message: "Field empty", status: 400, errors: errors });
+    }
+
+    return cb(null, {
+      teacherName: req.body.teacherName,
+      message: req.body.message
+    });
   }
 };

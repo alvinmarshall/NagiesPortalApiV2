@@ -13,7 +13,7 @@
 const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
-const _ = require("lodash");
+const { isEmpty } = require("lodash");
 const {
   noDataFormat,
   showData,
@@ -21,7 +21,8 @@ const {
   messageDataFormat,
   circularFormat,
   fileDataFormat,
-  billDataFormat
+  billDataFormat,
+  firebaseTopicPayload
 } = require("../utils/formatResource");
 const {
   FORMAT_TYPE,
@@ -34,8 +35,12 @@ const {
   TABLE_CIRCULAR,
   TABLE_TEACHER,
   TABLE_MESSAGE,
-  TABLE_BILLING
+  TABLE_BILLING,
+  FIREBASE_TOPIC
 } = require("../utils/constants");
+
+const { complaintFieldValidation } = require("../utils/validation.js");
+const { sendTopicMessage } = require("../notification/firebase");
 
 module.exports = {
   //#region student message
@@ -50,7 +55,7 @@ module.exports = {
         FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC `;
     db.query(sql, [level])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -128,7 +133,7 @@ module.exports = {
     const sql = `SELECT Teachers_No, Teachers_Name, Gender, Contact, Image FROM ${TABLE_TEACHER} WHERE Level_Name = ?`;
     db.query(sql, [level])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -153,7 +158,7 @@ module.exports = {
     const level = "administrator";
     db.query(sql, [level])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -176,7 +181,7 @@ module.exports = {
 
     db.query(sql, [id])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -184,7 +189,7 @@ module.exports = {
         sql = `SELECT id,CID,FileName,CID_Date FROM ${TABLE_CIRCULAR} WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
         db.query(sql, [faculty])
           .then(data => {
-            if (_.isEmpty(data)) {
+            if (isEmpty(data)) {
               res.status(404).send(noDataFormat());
               return;
             }
@@ -207,7 +212,7 @@ module.exports = {
       FROM ${TABLE_BILLING} WHERE Students_No = ? ORDER BY Report_Date DESC`;
     db.query(sql, [ref])
       .then(data => {
-        if (_.isEmpty(data)) {
+        if (isEmpty(data)) {
           res.status(404).send(noDataFormat());
           return;
         }
@@ -215,6 +220,90 @@ module.exports = {
         res.send(showData(_data, "Billing"));
       })
       .catch(err => console.error(err));
+  },
+  //#endregion
+
+  //#region send complaint message
+
+  //
+  // ─── SEND COMPLAINT MESSAGE TO TEACHER ──────────────────────────────────────────
+  //
+
+  sendComplaint: (req, res, user) => {
+    complaintFieldValidation(req, (err, messageData) => {
+      if (err) {
+        res.status(400).send(err);
+        return;
+      }
+
+      let sql = `SELECT Guardian_No,Guardian_Name FROM ${TABLE_STUDENT} WHERE id = ?`;
+      let guardianNo,
+        guardianName,
+        message,
+        teacherName,
+        studentNo,
+        level,
+        studentName;
+      db.query(sql, [user.id])
+        .then(data => {
+          console.log(data);
+          return data[0];
+        })
+        .then(data => {
+          if (isEmpty(data)) {
+            res.status(404).send({ message: "user not found", status: 404 });
+            return;
+          }
+          studentNo = user.ref;
+          studentName = user.name;
+          teacherName = messageData.teacherName;
+          guardianName = data.Guardian_Name;
+          guardianNo = data.Guardian_No;
+          message = messageData.message;
+          level = user.level;
+
+          sql = `INSERT INTO complaints SET Students_No = ?, 
+          Students_Name = ?, Message = ?,Level_Name = ?,
+          Guardian_Name = ?,Guardian_No = ?,Teachers_Name = ?`;
+          db.query(sql, [
+            studentNo,
+            studentName,
+            message,
+            level,
+            guardianName,
+            guardianNo,
+            teacherName
+          ])
+            .then(row => {
+              if (isEmpty(row)) {
+                res
+                  .status(500)
+                  .send({ message: "message failed", status: 500 });
+                return;
+              }
+
+              const _message = firebaseTopicPayload(
+                "complaint from parent",
+                message,
+                FIREBASE_TOPIC.Teacher
+              );
+
+              sendTopicMessage(_message)
+                .then(response => {
+                  console.log(`firebase message success ${response}`);
+                })
+                .catch(err => console.error(err));
+
+              res.send({
+                message: "message sent",
+                status: 200,
+                id: row.insertId
+              });
+            })
+            .catch(err => console.error(err));
+        })
+        .catch(err => console.error(err));
+    });
   }
   //#endregion
 };
@@ -228,7 +317,7 @@ module.exports = {
 const getAssignmentType = (req, res, sql, ref, type) => {
   db.query(sql, [ref])
     .then(data => {
-      if (_.isEmpty(data)) {
+      if (isEmpty(data)) {
         res.status(404).send(noDataFormat());
         return;
       }
@@ -243,7 +332,7 @@ const getAssignmentType = (req, res, sql, ref, type) => {
 const getReportType = (req, res, sql, ref, type) => {
   db.query(sql, [ref])
     .then(data => {
-      if (_.isEmpty(data)) {
+      if (isEmpty(data)) {
         res.status(404).send(noDataFormat());
         return;
       }

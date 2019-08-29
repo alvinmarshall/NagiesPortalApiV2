@@ -19,7 +19,8 @@ const {
   classTeacher,
   studentAnnouncement,
   circular,
-  studentBills
+  studentBills,
+  sendComplaint
 } = require("../models/Student");
 const passport = require("passport");
 const { ensureAuthentication } = require("../utils/validation");
@@ -161,6 +162,22 @@ router.get("/billing", (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
     if (ensureAuthentication(err, res, info)) {
       studentBills(req, res, user.ref);
+    }
+  })(req, res, next);
+});
+
+//#endregion
+
+//#region send complaint
+
+//
+// ─── SEND COMPLAINT TO CLASS TEACHER ────────────────────────────────────────────
+//
+
+router.post("/complaints", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      sendComplaint(req, res, user);
     }
   })(req, res, next);
 });
