@@ -17,8 +17,8 @@ module.exports = {
   // ─── SHOW DATA FORMAT──────────────────────────────────────────────────────────────────
   //
 
-  showData: data => {
-    return { status: 200, count: data.length, data: data };
+  showData: (data, type = "data") => {
+    return { status: 200, count: data.length, [`${type}`]: data };
   },
 
   //
@@ -131,7 +131,7 @@ module.exports = {
 
   classTeacherFormat: data => {
     let result = [];
-    forEach(data, (value, key) => {
+    forEach(data, (_, key) => {
       result.push({
         uid: data[key].Teachers_No,
         teacherName: data[key].Teachers_Name,
@@ -149,7 +149,7 @@ module.exports = {
 
   messageDataFormat: data => {
     let result = [];
-    forEach(data, (value, key) => {
+    forEach(data, (_, key) => {
       result.push({
         sender: data[key].Message_BY,
         level: data[key].Message_Level,
@@ -167,7 +167,7 @@ module.exports = {
 
   circularFormat: data => {
     let result = [];
-    forEach(data, (value, key) => {
+    forEach(data, (_, key) => {
       result.push({
         id: data[key].id,
         cid: data[key].CID,
@@ -202,7 +202,7 @@ module.exports = {
 
   billDataFormat: data => {
     let result = [];
-    forEach(data, (value, key) => {
+    forEach(data, (_, key) => {
       result.push({
         id: data[key].id,
         refNo: data[key].Students_No,
@@ -220,7 +220,7 @@ module.exports = {
 
   complaintDataFormat: data => {
     let result = [];
-    forEach(data, (value, key) => {
+    forEach(data, (_, key) => {
       result.push({
         studentNo: data[key].Students_No,
         studentName: data[key].Students_Name,

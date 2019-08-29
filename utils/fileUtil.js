@@ -1,18 +1,12 @@
 const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
-let studentNo,
-  studentName = undefined;
+let studentNo, studentName;
 
-const {
-  FORMAT_TYPE,
-  TABLE_REPORT_PDF,
-  TABLE_REPORT_IMAGE,
-  DIRECTORY
-} = require("../utils/constants");
+const { FORMAT_TYPE, DIRECTORY } = require("../utils/constants");
 const mkdirp = require("mkdirp");
-const { isEmpty, trim } = require("lodash");
-const { fileFieldValidation } = require("../utils/validation");
+const { isEmpty } = require("lodash");
+const { fileFieldValidation, isUploadReport } = require("../utils/validation");
 const { uploadedDataFormat, showData } = require("../utils/formatResource");
 module.exports = {
   //
@@ -20,9 +14,26 @@ module.exports = {
   //
 
   uploadFile: (req, res, dbTable, user, dir = DIRECTORY.studentsUpload) => {
-    if (checkIfReportFile(req, res, dbTable)) {
-      prepareToUploadFile(req, res, dbTable, dir, user);
-    }
+    isUploadReport(req, dbTable, (err, isReport) => {
+      if (err) {
+        res.status(400).send(err);
+        return;
+      }
+      if (isReport) {
+        studentNo = req.body.studentNo;
+        studentName = req.body.studentName;
+      } else {
+        studentNo = undefined;
+        studentName = undefined;
+      }
+      prepareToUploadFile(req, res, dir, (err, data) => {
+        if (err) {
+          res.status(500).send(err);
+          return;
+        }
+        saveFilePathToDB(res, data, dbTable, user);
+      });
+    });
   }
 };
 
@@ -45,14 +56,14 @@ const directoryUtil = dir => {
 // ─── SAVE UPLOADED PATH TO DATABASE ─────────────────────────────────────────────
 //
 
-const saveFilePathToDB = (res, format, destination, dbTable, user) => {
+const saveFilePathToDB = (res, file, dbTable, user) => {
   const index = studentNo || user.level;
   const name = studentName || user.username;
   const email = user.username;
   const sql = `INSERT INTO ${dbTable} SET Students_No = ?,Students_Name = ?,Teachers_Email = ?,Report_File = ?`;
-  db.query(sql, [index, name, email, destination])
+  db.query(sql, [index, name, email, file.destination])
     .then(row => {
-      const _data = uploadedDataFormat(row, destination, format);
+      const _data = uploadedDataFormat(row, file.destination, file.format);
       res.send(showData(_data));
     })
     .catch(err => {
@@ -77,55 +88,26 @@ const fileFormatType = extension => {
 };
 
 //
-// ─── DEALING WITH REPORT UPLOAD ─────────────────────────────────────────────────
-//
-
-const checkIfReportFile = (req, res, dbTable) => {
-  if (dbTable === TABLE_REPORT_PDF || dbTable === TABLE_REPORT_IMAGE) {
-    let errors = {};
-    if (isEmpty(trim(req.body.studentNo))) {
-      errors.studentNo = "Student number required to upload report";
-    }
-    if (isEmpty(trim(req.body.studentName))) {
-      errors.studentName = "Student name required to upload report";
-    }
-    if (!isEmpty(errors)) {
-      res
-        .status(400)
-        .send({ message: "Field empty", status: 400, errors: errors });
-      return false;
-    }
-    studentNo = req.body.studentNo;
-    studentName = req.body.studentName;
-    return true;
-  }
-  return true;
-};
-
-//
 // ─── PREPARE FOR AN UPLOAD ──────────────────────────────────────────────────────
 //
 
-const prepareToUploadFile = (req, res, dbTable, dir, user) => {
-  if (fileFieldValidation(req, res)) {
-    let fileToUpload = req.files.file;
-    if (isEmpty(fileToUpload)) {
-      res.status(400).send({ message: "Set form field to file", status: 400 });
+const prepareToUploadFile = (req, res, dir, cb) => {
+  fileFieldValidation(req, err => {
+    if (err) {
+      res.status(400).send(err);
       return;
     }
-
+    let fileToUpload = req.files.file;
     let publicPath = `public${dir}`;
-    directoryUtil(publicPath);
-    let filepath = `${publicPath}/${fileToUpload.name}`;
-    fileToUpload.mv(filepath, err => {
+    let filePath = `${publicPath}/${fileToUpload.name}`;
+    fileToUpload.mv(filePath, err => {
       if (err) {
         console.error(err);
-        res.status(500).send({ message: "Something went wrong", status: 500 });
-        return;
+        return cb({ message: "something went wrong, try again" });
       }
       const format = fileFormatType(fileToUpload.mimetype);
       const destination = `.${dir}/${fileToUpload.name}`;
-      saveFilePathToDB(res, format, destination, dbTable, user);
+      return cb(null, { format: format, destination: destination });
     });
-  }
+  });
 };

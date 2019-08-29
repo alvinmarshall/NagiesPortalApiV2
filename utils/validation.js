@@ -11,6 +11,7 @@
 //
 
 const { isEmpty, trim, isEqual } = require("lodash");
+const { TABLE_REPORT_PDF, TABLE_REPORT_IMAGE } = require("../utils/constants");
 
 module.exports = {
   //
@@ -89,12 +90,26 @@ module.exports = {
   // ─── FILE VALIDATION ────────────────────────────────────────────────────────────
   //
 
-  fileFieldValidation: (req, res) => {
-    if (isEqual(req.files)) {
-      res.status(400).send({ message: "No files were uploaded", status: 400 });
-      return false;
+  fileFieldValidation: (req, cb) => {
+    let errors = {};
+
+    if (isEmpty(req.files)) {
+      errors.document = "Select a file to be uploaded";
     }
-    return true;
+    if (!isEmpty(req.files)) {
+      if (isEmpty(req.files.file)) {
+        errors.file = "The upload form name must be set to file";
+      }
+    }
+
+    if (!isEmpty(errors)) {
+      return cb({
+        message: "No files were uploaded",
+        status: 400,
+        errors: errors
+      });
+    }
+    return cb(null);
   },
 
   //
@@ -113,5 +128,27 @@ module.exports = {
       return false;
     }
     return true;
+  },
+
+  //
+  // ─── CHECK FOR REPORT UPLOAD ────────────────────────────────────────────────────
+  //
+
+  isUploadReport: (req, dbTable, cb) => {
+    if (dbTable === TABLE_REPORT_PDF || dbTable === TABLE_REPORT_IMAGE) {
+      let errors = {};
+      if (isEmpty(trim(req.body.studentNo))) {
+        errors.studentNo = "Student number required to upload report";
+      }
+      if (isEmpty(trim(req.body.studentName))) {
+        errors.studentName = "Student name required to upload report";
+      }
+      if (!isEmpty(errors)) {
+        return cb({ message: "Field empty", status: 400, errors: errors });
+      }
+
+      return cb(null, true);
+    }
+    return cb(null, false);
   }
 };
