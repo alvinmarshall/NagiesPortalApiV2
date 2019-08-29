@@ -16,7 +16,9 @@ const {
 } = require("../models/Teacher");
 const {
   TABLE_ASSIGNMENT_PDF,
-  TABLE_ASSIGNMENT_IMAGE
+  TABLE_ASSIGNMENT_IMAGE,
+  TABLE_REPORT_PDF,
+  TABLE_REPORT_IMAGE
 } = require("../utils/constants");
 
 //#region parent complaints
@@ -83,6 +85,35 @@ router.post("/upload_assignment_image", (req, res, next) => {
   })(req, res, next);
 });
 
+//
+// ───UPLOAD STUDENT REPORTS PDF ────────────────────────────────────────────────────────────────────
+//
+
+router.post("/upload_report_pdf", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      teacherUpload(req, res, TABLE_REPORT_PDF, user);
+    }
+  })(req, res, next);
+});
+
+//
+// ───UPLOAD STUDENT REPORTS IMAGE ────────────────────────────────────────────────────────────────────
+//
+
+router.post("/upload_report_image", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      teacherUpload(req, res, TABLE_REPORT_IMAGE, user);
+    }
+  })(req, res, next);
+});
 //#endregion
 
 //#region send message to parent
