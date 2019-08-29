@@ -13,7 +13,7 @@
 const Database = require("../config/Database");
 const { dbConfig, jwtConfig } = require("../config/config");
 const db = new Database(dbConfig);
-const _ = require("lodash");
+const { isEmpty } = require("lodash");
 const jsonWebToken = require("jsonwebtoken");
 const { stringToBoolean } = require("../utils/stringToBoolean");
 const {
@@ -25,7 +25,8 @@ const {
   profileFormat,
   noDataFormat,
   authenticationFailedFormat,
-  loginPayloadFormat
+  loginPayloadFormat,
+  showData
 } = require("../utils/formatResource");
 
 module.exports = {
@@ -133,11 +134,17 @@ module.exports = {
 const accountProfile = (res, sql, id, role) => {
   db.query(sql, id)
     .then(data => {
-      if (data.length === 0) {
+      return data[0];
+    })
+    .then(data => {
+      if (isEmpty(data)) {
         res.status(404).send(noDataFormat());
         return;
       }
-      res.send(profileFormat(role, data));
+      const _data = profileFormat(role, data);
+      const type =
+        role === USER_ROLE.Parent ? "studentProfile" : "teacherProfile";
+      res.send(showData(_data, type));
     })
     .catch(err => console.error(err));
 };
@@ -187,13 +194,17 @@ prepareToAuthenticate = (req, res, sql, role) => {
       return data[0];
     })
     .then(data => {
-      if (_.isEmpty(data)) {
+      if (isEmpty(data)) {
         res.status(401).send(authenticationFailedFormat());
         return;
       }
       const payload = loginPayloadFormat(role, data);
       jsonWebToken.sign(payload, jwtConfig.secret, (err, encode) => {
-        if (err) throw err;
+        if (err) {
+          console.error(err);
+          res.status(401).send(err);
+          return;
+        }
         res.json({
           message: "Login Successful",
           uuid: payload.id,

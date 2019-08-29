@@ -11,7 +11,8 @@ const {
   parentComplaints,
   teacherAnnouncement,
   teacherUpload,
-  sendMessageToParent
+  sendMessageToParent,
+  classStudents
 } = require("../models/Teacher");
 const {
   TABLE_ASSIGNMENT_PDF,
@@ -102,6 +103,24 @@ router.post("/send_message", (req, res, next) => {
     }
   })(req, res, next);
 });
+//#endregion
+
+//#region class students
+//
+// ─── CLASS STUDENTS ──────────────────────────────────────────────────────────────
+//
+
+router.get("/class_student", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      classStudents(req, res, user.level);
+    }
+  })(req, res, next);
+});
+
 //#endregion
 
 module.exports = router;

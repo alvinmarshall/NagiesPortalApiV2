@@ -130,7 +130,7 @@ router.get("/teachers", (req, res, next) => {
 router.get("/announcement", (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
     if (ensureAuthentication(err, res, info)) {
-      studentAnnouncement(req, res, user.level);
+      studentAnnouncement(req, res);
     }
   })(req, res, next);
 });
