@@ -34,7 +34,7 @@ module.exports = {
   //
 
   noDataFormat: () => {
-    return { message: "No Data Available", status: 404 };
+    return { message: "No Data Available", status: 404, count: 0 };
   },
 
   //
@@ -81,45 +81,37 @@ module.exports = {
   //
 
   profileFormat: (role, data) => {
-    const profile = {};
     switch (role) {
       case USER_ROLE.Parent:
-        profile.studentNo = data[0].Students_No;
-        profile.studentName = data[0].Students_Name;
-        profile.dob = data[0].Dob;
-        profile.gender = data[0].Gender;
-        profile.admissionDate = data[0].Admin_Date;
-        profile.section = data[0].Section_Name;
-        profile.faculty = data[0].Faculty_Name;
-        profile.level = data[0].Level_Name;
-        profile.semester = data[0].Semester_Name;
-        profile.index = data[0].Index_No;
-        profile.guardian = data[0].Guardian_Name;
-        profile.contact = data[0].Guardian_No;
-        profile.imageUrl = data[0].Image;
         return {
-          message: "Student Profile",
-          status: 200,
-          studentProfile: profile
+          studentNo: data.Students_No,
+          studentName: data.Students_Name,
+          gender: data.Gender,
+          dob: data.Dob,
+          admissionDate: data.Admin_Date,
+          section: data.Section_Name,
+          faculty: data.Faculty_Name,
+          level: data.Level_Name,
+          semester: data.Semester_Name,
+          index: data.Index_No,
+          guardian: data.Guardian_Name,
+          contact: data.Guardian_No,
+          imageUrl: data.Image
         };
       case USER_ROLE.Teacher:
-        profile.uid = data[0].Students_No;
-        profile.ref = data[0].Teachers_No;
-        profile.name = data[0].Teachers_Name;
-        profile.dob = data[0].Dob;
-        profile.gender = data[0].Gender;
-        profile.contact = data[0].Contact;
-        profile.admissionDate = data[0].Admin_Date;
-        profile.facultyName = data[0].Faculty_Name;
-        profile.level = data[0].Level_Name;
-        profile.username = data[0].Username;
-        profile.imageUrl = data[0].Image;
         return {
-          message: "Teacher Profile",
-          status: 200,
-          teacherProfile: profile
+          uid: data.id,
+          ref: data.Teachers_No,
+          name: data.Teachers_Name,
+          dob: data.Dob,
+          gender: data.Gender,
+          contact: data.Contact,
+          admissionDate: data.Admin_Date,
+          facultyName: data.Faculty_Name,
+          level: data.Level_Name,
+          username: data.Username,
+          imageUrl: data.Image
         };
-
       default:
         return {};
     }
@@ -174,8 +166,8 @@ module.exports = {
         fileUrl: data[key].FileName,
         date: data[key].CID_Date
       });
-      return result;
     });
+    return result;
   },
 
   //
@@ -184,7 +176,7 @@ module.exports = {
 
   fileDataFormat: (type, data) => {
     let result = [];
-    forEach(data, (value, key) => {
+    forEach(data, (_, key) => {
       result.push({
         studentName: data[key].Students_Name,
         teacherEmail: data[key].Teachers_Email,
@@ -206,6 +198,7 @@ module.exports = {
       result.push({
         id: data[key].id,
         refNo: data[key].Students_No,
+        studentName: data[key].Students_Name,
         sender: data[key].Uploader,
         fileUrl: data[key].Bill_File,
         date: data[key].Report_Date
@@ -259,5 +252,23 @@ module.exports = {
       },
       topic: topic
     };
+  },
+
+  //
+  // ─── CLASS STUDENT FORMAT ───────────────────────────────────────────────────────
+  //
+
+  classStudentDataFormat: data => {
+    let result = [];
+    forEach(data, (_, key) => {
+      result.push({
+        studentNo: data[key].Students_No,
+        studentName: data[key].Students_Name,
+        gender: data[key].Gender,
+        indexNo: data[key].Index_No,
+        imageUrl: data[key].Image
+      });
+    });
+    return result;
   }
 };

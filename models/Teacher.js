@@ -12,7 +12,8 @@ const {
   complaintDataFormat,
   showData,
   messageDataFormat,
-  firebaseTopicPayload
+  firebaseTopicPayload,
+  classStudentDataFormat
 } = require("../utils/formatResource");
 const { uploadFile } = require("../utils/fileUtil");
 const { sendTopicMessage } = require("../notification/firebase");
@@ -34,7 +35,7 @@ module.exports = {
           return;
         }
         const _data = complaintDataFormat(data);
-        res.send(showData(_data));
+        res.send(showData(_data, "Complaints"));
       })
       .catch(err => console.error(err));
   },
@@ -57,7 +58,7 @@ module.exports = {
           return;
         }
         const _data = messageDataFormat(data);
-        res.send(showData(_data));
+        res.send(showData(_data, "messages"));
       })
       .catch(err => console.error(err));
   },
@@ -102,7 +103,27 @@ module.exports = {
         res.send({ message: "message sent", status: 200, id: row.insertId });
       })
       .catch(err => console.error(err));
+  },
+  //#endregion
+
+  //#region class students
+  //
+  // ─── CLASS STUDENTS ─────────────────────────────────────────────────────────────
+  //
+  classStudents: (req, res, level) => {
+    const sql = `SELECT Students_No,Students_Name,Gender,Index_No,Image FROM student WHERE Level_Name =  ?`;
+    db.query(sql, [level])
+      .then(data => {
+        if (isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const _data = classStudentDataFormat(data);
+        res.send(showData(_data, "classStudent"));
+      })
+      .catch(err => console.error(err));
   }
+
   //#endregion
 };
 

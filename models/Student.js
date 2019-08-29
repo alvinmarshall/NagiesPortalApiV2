@@ -55,7 +55,7 @@ module.exports = {
           return;
         }
         const _data = messageDataFormat(data);
-        res.send(showData(_data));
+        res.send(showData(_data, "messages"));
       })
       .catch(err => console.error(err));
   },
@@ -133,7 +133,7 @@ module.exports = {
           return;
         }
         const _data = classTeacherFormat(data);
-        res.send(showData(_data));
+        res.send(showData(_data, "studentTeachers"));
       })
       .catch(err => console.error(err));
 
@@ -146,10 +146,11 @@ module.exports = {
   // ─── STUDENT ANNOUNCEMENT ───────────────────────────────────────────────────────
   //
 
-  studentAnnouncement: (req, res, level) => {
+  studentAnnouncement: (req, res) => {
     const sql = `SELECT 
     id, Message_BY, M_Date, Message, Message_Level, M_Read
     FROM ${TABLE_ANNOUNCEMENT} WHERE Message_Level = ? ORDER BY M_Date DESC`;
+    const level = "administrator";
     db.query(sql, [level])
       .then(data => {
         if (_.isEmpty(data)) {
@@ -157,7 +158,7 @@ module.exports = {
           return;
         }
         const _data = messageDataFormat(data);
-        res.send(showData(_data));
+        res.send(showData(_data, "messages"));
       })
       .catch(err => console.error(err));
 
@@ -188,7 +189,7 @@ module.exports = {
               return;
             }
             const _data = circularFormat(data);
-            res.send(showData(data));
+            res.send(showData(_data, "Circular"));
           })
           .catch(err => console.error(err));
       })
@@ -211,7 +212,7 @@ module.exports = {
           return;
         }
         const _data = billDataFormat(data);
-        res.send(showData(_data));
+        res.send(showData(_data, "Billing"));
       })
       .catch(err => console.error(err));
   }
@@ -228,11 +229,11 @@ const getAssignmentType = (req, res, sql, ref, type) => {
   db.query(sql, [ref])
     .then(data => {
       if (_.isEmpty(data)) {
-        res.send(noDataFormat());
+        res.status(404).send(noDataFormat());
         return;
       }
       const _data = fileDataFormat(type, data);
-      res.send(showData(_data));
+      res.send(showData(_data, "Assignment"));
     })
     .catch(err => console.error(err));
 };
@@ -243,11 +244,11 @@ const getReportType = (req, res, sql, ref, type) => {
   db.query(sql, [ref])
     .then(data => {
       if (_.isEmpty(data)) {
-        res.send(noDataFormat());
+        res.status(404).send(noDataFormat());
         return;
       }
       const _data = fileDataFormat(type, data);
-      res.send(showData(_data));
+      res.send(showData(_data, "report"));
     })
     .catch(err => console.error(err));
 };
