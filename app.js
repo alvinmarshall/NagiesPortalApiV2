@@ -63,6 +63,18 @@ app.use("/api/users", usersRouter);
 app.use("/api/students", studentRouter);
 app.use("/api/teachers", teacherRouter);
 
+// download route
+app.get("/download", (req, res) => {
+  const filePath = `/public/${req.query.path}`;
+  const fileName = path.basename(filePath);
+  res.download(__dirname + filePath, fileName, err => {
+    if (err) {
+      res.send({ message: "No file found", error: err });
+      return;
+    }
+  });
+});
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   next(createError(404));

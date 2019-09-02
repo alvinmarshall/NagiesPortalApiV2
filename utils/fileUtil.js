@@ -98,7 +98,7 @@ const prepareToUploadFile = (req, res, dir, cb) => {
       return;
     }
     let fileToUpload = req.files.file;
-    let publicPath = `public${dir}`;
+    let publicPath = `public/${dir}`;
     let filePath = `${publicPath}/${fileToUpload.name}`;
     fileToUpload.mv(filePath, err => {
       if (err) {
@@ -106,7 +106,7 @@ const prepareToUploadFile = (req, res, dir, cb) => {
         return cb({ message: "something went wrong, try again" });
       }
       const format = fileFormatType(fileToUpload.mimetype);
-      const destination = `.${dir}/${fileToUpload.name}`;
+      const destination = `${dir}/${fileToUpload.name}`;
       return cb(null, { format: format, destination: destination });
     });
   });

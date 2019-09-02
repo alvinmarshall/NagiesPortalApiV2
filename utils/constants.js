@@ -25,8 +25,8 @@ module.exports.TABLE_MESSAGE = "message";
 module.exports.TABLE_BILLING = "billing";
 module.exports.TABLE_COMPLAINTS = "complaints";
 module.exports.DIRECTORY = {
-  studentsUpload: "/students/uploads",
-  teachersUpload: "/teacher/uploads"
+  studentsUpload: "students/assignment",
+  teachersUpload: "teacher/uploads"
 };
 module.exports.FIREBASE_TOPIC = {
   Parent: "parent",
