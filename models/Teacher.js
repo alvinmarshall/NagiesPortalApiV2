@@ -35,7 +35,7 @@ module.exports = {
           return;
         }
         const _data = complaintDataFormat(data);
-        res.send(showData(_data, "Complaints"));
+        res.send(showData(_data, "complaints"));
       })
       .catch(err => console.error(err));
   },
@@ -100,7 +100,12 @@ module.exports = {
             console.log(`firebase message success ${response}`);
           })
           .catch(err => console.error(err));
-        res.send({ message: "message sent", status: 200, id: row.insertId });
+        res.send({
+          message: "message sent",
+          status: 200,
+          id: row.insertId,
+          level: user.level
+        });
       })
       .catch(err => console.error(err));
   },
