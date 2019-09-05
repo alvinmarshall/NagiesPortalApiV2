@@ -10,8 +10,9 @@
 // ─── IMPORT ─────────────────────────────────────────────────────────────────────
 //
 
-const { USER_ROLE } = require("../utils/constants");
+const { USER_ROLE,DATE_TYPE } = require("../utils/constants");
 const { forEach } = require("lodash");
+const dateFormat = require("dateformat");
 module.exports = {
   //
   // ─── SHOW DATA FORMAT──────────────────────────────────────────────────────────────────
@@ -87,8 +88,8 @@ module.exports = {
           studentNo: data.Students_No,
           studentName: data.Students_Name,
           gender: data.Gender,
-          dob: data.Dob,
-          admissionDate: data.Admin_Date,
+          dob: dateFormat(data.Dob,DATE_TYPE.shortDate),
+          admissionDate: dateFormat(data.Admin_Date,DATE_TYPE.shortDate),
           section: data.Section_Name,
           faculty: data.Faculty_Name,
           level: data.Level_Name,
@@ -103,10 +104,10 @@ module.exports = {
           uid: data.id,
           ref: data.Teachers_No,
           name: data.Teachers_Name,
-          dob: data.Dob,
+          dob: dateFormat(data.Dob,DATE_TYPE.shortDate),
           gender: data.Gender,
           contact: data.Contact,
-          admissionDate: data.Admin_Date,
+          admissionDate: dateFormat(data.Admin_Date,DATE_TYPE.shortDate),
           facultyName: data.Faculty_Name,
           level: data.Level_Name,
           username: data.Username,
@@ -147,7 +148,7 @@ module.exports = {
         level: data[key].Message_Level,
         content: data[key].Message,
         status: data[key].M_Read,
-        date: data[key].M_Date
+        date: dateFormat(data[key].M_Date,DATE_TYPE.fullDate)
       });
     });
     return result;
@@ -164,7 +165,7 @@ module.exports = {
         id: data[key].id,
         cid: data[key].CID,
         fileUrl: data[key].FileName,
-        date: data[key].CID_Date
+        date: dateFormat(data[key].CID_Date,DATE_TYPE.shortDate)
       });
     });
     return result;
@@ -182,7 +183,7 @@ module.exports = {
         teacherEmail: data[key].Teachers_Email,
         fileUrl: data[key].Report_File,
         format: type,
-        date: data[key].Report_Date
+        date: dateFormat(data[key].Report_Date,DATE_TYPE.simpleDate)
       });
     });
     return result;
@@ -201,7 +202,7 @@ module.exports = {
         studentName: data[key].Students_Name,
         sender: data[key].Uploader,
         fileUrl: data[key].Bill_File,
-        date: data[key].Report_Date
+        date: dateFormat(data[key].Report_Date,DATE_TYPE.simpleDate)
       });
     });
     return result;
@@ -222,7 +223,7 @@ module.exports = {
         guardianContact: data[key].Guardian_No,
         teacherName: data[key].Teachers_Name,
         message: data[key].Message,
-        date: data[key].Message_Date
+        date: dateFormat(data[key].Message_Date,DATE_TYPE.fullDate)
       });
     });
     return result;

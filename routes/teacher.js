@@ -12,7 +12,9 @@ const {
   teacherAnnouncement,
   teacherUpload,
   sendMessageToParent,
-  classStudents
+  classStudents,
+  deleteUploadPath,
+  getUploadedFilePath
 } = require("../models/Teacher");
 const {
   TABLE_ASSIGNMENT_PDF,
@@ -153,5 +155,38 @@ router.get("/class_student", (req, res, next) => {
 });
 
 //#endregion
+
+//#region delete assignment upload
+
+//
+// ─── DELETE ASSIGNMENT UPLOADS ──────────────────────────────────────────────────
+//
+
+router.delete("/delete_upload", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      deleteUploadPath(req, res,user);
+    }
+  })(req, res, next);
+});
+//#endregion
+
+//
+// ─── GET UPLOADED ASSIGNMENT ────────────────────────────────────────────────────
+//
+
+router.get("/get_upload", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (
+      ensureAuthentication(err, res, info) &&
+      permissionMiddleWare(res, USER_ROLE.Teacher, user.role)
+    ) {
+      getUploadedFilePath(req, res,user);
+    }
+  })(req, res, next);
+});
 
 module.exports = router;
