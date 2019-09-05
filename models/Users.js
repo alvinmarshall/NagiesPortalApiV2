@@ -169,7 +169,7 @@ const changePassword = (passObj, res, table) => {
         passObj.id
       ])
         .then(row => {
-          if (!row) {
+          if (row.affectedRows == 0) {
             res.status(400).send({
               message: "updating password failed...",
               status: 400

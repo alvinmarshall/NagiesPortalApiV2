@@ -8,6 +8,7 @@ const mkdirp = require("mkdirp");
 const { isEmpty } = require("lodash");
 const { fileFieldValidation, isUploadReport } = require("../utils/validation");
 const { uploadedDataFormat, showData } = require("../utils/formatResource");
+const fs = require("fs");
 module.exports = {
   //
   // ─── FILE UPLOADER ──────────────────────────────────────────────────────────────
@@ -32,6 +33,36 @@ module.exports = {
           return;
         }
         saveFilePathToDB(res, data, dbTable, user);
+      });
+    });
+  },
+
+  //
+  // ─── DELETE A FILE ──────────────────────────────────────────────────────────────
+  //
+
+  deleteFile: (req, res, path) => {
+    const filePath = `./public/${path}`;
+    fs.stat(filePath, err => {
+      if (err) {
+        console.error(err);
+        res
+          .status(404)
+          .send({ message: "file not found", errors: err, status: 404 });
+        return;
+      }
+      fs.unlink(filePath, err => {
+        if (err) {
+          res
+            .status(500)
+            .send({
+              message: "something went wrong try again",
+              status: 500,
+              errors: err
+            });
+          return;
+        }
+        res.send({ message: "file deleted successful",status:200 });
       });
     });
   }

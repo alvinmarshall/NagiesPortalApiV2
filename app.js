@@ -64,7 +64,7 @@ app.use("/api/students", studentRouter);
 app.use("/api/teachers", teacherRouter);
 
 // download route
-app.get("/download", (req, res) => {
+app.get("/api/download", (req, res) => {
   const filePath = `/public/${req.query.path}`;
   const fileName = path.basename(filePath);
   res.download(__dirname + filePath, fileName, err => {
