@@ -1,7 +1,7 @@
 const Database = require("../config/Database");
 const { dbConfig } = require("../config/config");
 const db = new Database(dbConfig);
-const { isEmpty } = require("lodash");
+const { isEmpty,forEach } = require("lodash");
 const {
   TABLE_COMPLAINTS,
   TABLE_MESSAGE,
@@ -9,7 +9,7 @@ const {
   TABLE_ASSIGNMENT_PDF,
   TABLE_ASSIGNMENT_IMAGE,
   TABLE_REPORT_PDF,
-  TABLE_REPORT_IMAGE
+  TABLE_REPORT_IMAGE,DATE_TYPE
 } = require("../utils/constants");
 const {
   noDataFormat,
@@ -21,6 +21,7 @@ const {
 } = require("../utils/formatResource");
 const { uploadFile, deleteFile } = require("../utils/fileUtil");
 const { sendTopicMessage } = require("../notification/firebase");
+const dateFormat = require('dateformat')
 module.exports = {
   //#region parrent complaint
 
@@ -175,6 +176,9 @@ module.exports = {
           res.status(404).send(noDataFormat());
           return;
         }
+        forEach(data,(_,key) => {
+          data[key].Report_Date = dateFormat(data[key].Report_Date,DATE_TYPE.fullDate)
+        })
         res.send(showData(data, "dataUpload"));
       })
       .catch(err => console.error(err));
