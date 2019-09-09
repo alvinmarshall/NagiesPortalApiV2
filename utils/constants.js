@@ -34,4 +34,4 @@ module.exports.FIREBASE_TOPIC = {
   Global: "global"
 };
 
-module.exports.DATE_TYPE = {fullDate:"ddd, mmmm dd yyyy HH:MM TT",shortDate:"ddd, mmmm dd yyyy",simpleDate:"mmmm d, yyyy"}
+module.exports.DATE_TYPE = {fullDate:"ddd, mmmm dd yyyy",shortDate:"ddd, mmmm dd yyyy",simpleDate:"mmmm d, yyyy"}

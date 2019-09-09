@@ -78,12 +78,12 @@ module.exports = {
     switch (type) {
       case FORMAT_TYPE.PDF:
         table = TABLE_ASSIGNMENT_PDF;
-        sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
+        sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ? ORDER BY Report_Date DESC`;
         getAssignmentType(req, res, sql, ref, FORMAT_TYPE.PDF);
         break;
       case FORMAT_TYPE.IMAGE:
         table = TABLE_ASSIGNMENT_IMAGE;
-        sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
+        sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?  ORDER BY Report_Date DESC`;
         getAssignmentType(req, res, sql, ref, FORMAT_TYPE.IMAGE);
         break;
 
@@ -107,14 +107,14 @@ module.exports = {
         table = TABLE_REPORT_PDF;
         sql = `SELECT 
         Students_Name,
-        Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
+        Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ? ORDER BY Report_Date DESC`;
         getReportType(req, res, sql, ref, FORMAT_TYPE.PDF);
         break;
       case FORMAT_TYPE.IMAGE:
         table = TABLE_REPORT_IMAGE;
         sql = `SELECT 
         Students_Name,
-        Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?`;
+        Teachers_Email, Report_File, Report_Date FROM ${table} WHERE Students_No = ?  ORDER BY Report_Date DESC`;
         getReportType(req, res, sql, ref, FORMAT_TYPE.IMAGE);
         break;
 
