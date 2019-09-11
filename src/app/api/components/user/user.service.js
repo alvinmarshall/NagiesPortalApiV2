@@ -52,7 +52,7 @@ class UserService {
     User.findById(user.role, { id: user.id, isProfile: true }, (err, _user) => {
       if (err) return cb(err);
       let profile = profileFormat(user.role, _user);
-      const type = user.role ? "studentProfile" : "teacherProfile";
+      const type = user.role == "parent" ? "studentProfile" : "teacherProfile";
       return cb(null, showData(profile, type));
     });
   }
