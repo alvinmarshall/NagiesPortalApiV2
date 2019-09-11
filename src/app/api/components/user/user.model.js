@@ -96,12 +96,12 @@ class UserModel {
           .then(row => {
             if (row.affectedRows > 0) {
               return cb(null, {
-                message: "user password updated",
+                message: "updated password successful",
                 status: 200
               });
             }
             return cb(null, {
-              message: "change password failded",
+              message: "updating password failed...",
               status: 304
             });
           })

@@ -2,7 +2,8 @@ const jsonWebToken = require("jsonwebtoken");
 const config = require("config");
 const {
   loginPayloadFormat,
-  profileFormat
+  profileFormat,
+  showData
 } = require("../../common/utils/data.format");
 const User = require("./user.model");
 class UserService {
@@ -51,7 +52,8 @@ class UserService {
     User.findById(user.role, { id: user.id, isProfile: true }, (err, _user) => {
       if (err) return cb(err);
       let profile = profileFormat(user.role, _user);
-      return cb(null, profile);
+      const type = user.role ? "studentProfile" : "teacherProfile";
+      return cb(null, showData(profile, type));
     });
   }
 }
