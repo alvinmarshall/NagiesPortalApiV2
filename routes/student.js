@@ -20,7 +20,7 @@ const {
   studentAnnouncement,
   circular,
   studentBills,
-  sendComplaint
+  sendComplaint,studentTimetable
 } = require("../models/Student");
 const passport = require("passport");
 const { ensureAuthentication } = require("../utils/validation");
@@ -178,6 +178,22 @@ router.post("/complaints", (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user, info) => {
     if (ensureAuthentication(err, res, info)) {
       sendComplaint(req, res, user);
+    }
+  })(req, res, next);
+});
+
+//#endregion
+
+//#region get time table
+
+//
+// ─── SEND COMPLAINT TO CLASS TEACHER ────────────────────────────────────────────
+//
+
+router.post("/timetable", (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (ensureAuthentication(err, res, info)) {
+      studentTimetable(req,res,user.ref)
     }
   })(req, res, next);
 });

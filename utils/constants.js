@@ -24,6 +24,7 @@ module.exports.TABLE_CIRCULAR = "circular";
 module.exports.TABLE_MESSAGE = "message";
 module.exports.TABLE_BILLING = "billing";
 module.exports.TABLE_COMPLAINTS = "complaints";
+module.exports.TABLE_TIME_TABLE = "";
 module.exports.DIRECTORY = {
   studentsUpload: "students/assignment",
   teachersUpload: "teacher/uploads"
@@ -34,4 +35,8 @@ module.exports.FIREBASE_TOPIC = {
   Global: "global"
 };
 
-module.exports.DATE_TYPE = {fullDate:"ddd, mmmm dd yyyy",shortDate:"ddd, mmmm dd yyyy",simpleDate:"mmmm d, yyyy"}
+module.exports.DATE_TYPE = {
+  fullDate: "ddd, mmmm dd yyyy",
+  shortDate: "ddd, mmmm dd yyyy",
+  simpleDate: "mmmm d, yyyy"
+};

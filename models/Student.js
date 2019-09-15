@@ -36,6 +36,7 @@ const {
   TABLE_TEACHER,
   TABLE_MESSAGE,
   TABLE_BILLING,
+  TABLE_TIME_TABLE,
   FIREBASE_TOPIC
 } = require("../utils/constants");
 
@@ -304,6 +305,26 @@ module.exports = {
         })
         .catch(err => console.error(err));
     });
+  },
+  //#endregion
+  //#region  get time table
+  //
+  // ─── GET CLASS TIME TABLE ───────────────────────────────────────────────────────
+  //
+
+  studentTimetable: (req, res, ref) => {
+    const sql = `SELECT  
+      FROM ${TABLE_TIME_TABLE} WHERE Students_No = ? ORDER BY Report_Date DESC`;
+    db.query(sql, [ref])
+      .then(data => {
+        if (isEmpty(data)) {
+          res.status(404).send(noDataFormat());
+          return;
+        }
+        const _data = ["timetable"];
+        res.send(showData(_data, "timetable"));
+      })
+      .catch(err => console.error(err));
   }
   //#endregion
 };
