@@ -19,7 +19,15 @@ const {
   TABLE_REPORT_IMAGE,
   TABLE_TIME_TABLE
 } = require("../../common/constants");
+const { uploadFile } = require("./file.util");
+
 class FileModel {
+  //
+  // ────────────────────────────────────────────────────────────────────────────────────────────────── I ──────────
+  //   :::::: G E T   A N Y   F I L E   P A T H   F R O M   S E R V E R : :  :   :    :     :        :          :
+  // ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  //
+
   static getFile({ from, fileTable, column }, cb = (err, files) => {}) {
     let sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date 
               FROM ${fileTable.table} WHERE ${column} = ? ORDER BY Report_Date DESC`;
@@ -48,7 +56,6 @@ class FileModel {
         break;
       case TABLE_TIME_TABLE:
         type = "timetable";
-        sql = "";
         break;
     }
 
@@ -59,6 +66,64 @@ class FileModel {
       .catch(err => {
         return cb(err);
       });
+  }
+
+  //
+  // ────────────────────────────────────────────────────────────────────────────────── I ──────────
+  //   :::::: S A V E   U P L O A D   F I L E   P A T H : :  :   :    :     :        :          :
+  // ────────────────────────────────────────────────────────────────────────────────────────────
+  //
+
+  static saveFilePath(user, uploadInfo, reportInfo, cb = (err, result) => {}) {
+    let sql,
+      param = {
+        studentNo: user.level,
+        studentName: user.username,
+        teacherEmail: user.username,
+        path: uploadInfo.destination
+      };
+    switch (uploadInfo.fileTable.table) {
+      case TABLE_CIRCULAR:
+      case TABLE_BILLING:
+        break;
+      default:
+        sql = `INSERT INTO ${uploadInfo.fileTable.table} SET Students_No = ?,Students_Name = ?,Teachers_Email = ?,Report_File = ?`;
+        break;
+    }
+
+    if (reportInfo) {
+      param.studentName = reportInfo.studentName;
+      param.studentNo = reportInfo.studentNo;
+    }
+
+    db.query(sql, [
+      param.studentNo,
+      param.studentName,
+      param.teacherEmail,
+      param.path
+    ])
+      .then(row => {
+        return cb(null, {
+          row: row,
+          path: param.path,
+          format: uploadInfo.fileTable.format
+        });
+      })
+      .catch(err => {
+        return cb(err);
+      });
+  }
+
+  //
+  // ──────────────────────────────────────────────────────────────────────── I ──────────
+  //   :::::: D E L E T E   F I L E   P A T H : :  :   :    :     :        :          :
+  // ──────────────────────────────────────────────────────────────────────────────────
+  //
+  static deleteFilePath(id, { user, fileTable }, cb = (err, result) => {}) {
+    const sql = `DELETE FROM ${fileTable.table} WHERE id = ? AND Teachers_Email = ?`;
+    db.query(sql, [id, user.username])
+      .then(row => cb(null, row))
+      .catch(err => cb(err));
   }
 }
 

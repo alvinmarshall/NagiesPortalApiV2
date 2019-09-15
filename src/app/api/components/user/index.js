@@ -17,7 +17,10 @@ const passport = require("passport");
 
 //
 // ─── ACCOUNT LOGIN ──────────────────────────────────────────────────────────────
-//
+// @route POST api/v1/users
+// @desc Login User / returning JWT Token
+// @access Public
+// @query params 'role'
 
 router.post(
   "/",
@@ -50,7 +53,9 @@ router.post(
 
 //
 // ─── CHANGE ACCOUNT PASSWORD ────────────────────────────────────────────────────
-//
+// @route POST api/v1/users/change_password
+// @desc Change Account Password
+// @access Protected
 
 router.post(
   "/change_password",
@@ -97,7 +102,9 @@ router.post(
 
 //
 // ─── GET USER PROFILE ───────────────────────────────────────────────────────────
-//
+// @route POST api/v1/users/profile
+// @desc User Profile Info
+// @access Protected
 
 router.get(
   "/profile",

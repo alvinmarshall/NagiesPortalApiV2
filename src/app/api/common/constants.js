@@ -24,10 +24,14 @@ module.exports.TABLE_CIRCULAR = "circular";
 module.exports.TABLE_MESSAGE = "message";
 module.exports.TABLE_BILLING = "billing";
 module.exports.TABLE_COMPLAINTS = "complaints";
-module.exports.TABLE_TIME_TABLE = "";
+module.exports.TABLE_TIME_TABLE = "timetable";
 
 module.exports.DIRECTORY = {
-  studentsUpload: "students/assignment",
+  assignmentUpload: "students/assignment",
+  reportUpload: "students/Reports",
+  timetableUpload: "students/Timetable",
+  circularUpload: "students/Circular",
+  billUpload: "students/Bill",
   teachersUpload: "teacher/uploads"
 };
 module.exports.FIREBASE_TOPIC = {
@@ -45,56 +49,79 @@ module.exports.FILE_TYPE = {
   Assignment: {
     name: "assignment",
     pdf: {
-      table: "assignment",
-      format: "pdf"
+      table: this.TABLE_ASSIGNMENT_PDF,
+      format: "pdf",
+      location: this.DIRECTORY.assignmentUpload
     },
     image: {
-      table: "assignment_image",
-      format: "image"
+      table: this.TABLE_ASSIGNMENT_IMAGE,
+      format: "image",
+      location: this.DIRECTORY.assignmentUpload
     }
   },
   Report: {
     name: "report",
     pdf: {
-      table: "report",
-      format: "pdf"
+      table: this.TABLE_REPORT_PDF,
+      format: "pdf",
+      location: this.DIRECTORY.reportUpload
     },
     image: {
-      table: "report_png",
-      format: "image"
+      table: this.TABLE_REPORT_IMAGE,
+      format: "image",
+      location: this.DIRECTORY.reportUpload
     }
   },
   Circular: {
     name: "circular",
     pdf: {
-      table: "circular",
-      format: "pdf"
+      table: this.TABLE_CIRCULAR,
+      format: "pdf",
+      location: this.DIRECTORY.circularUpload
     },
     image: {
-      table: "circular",
-      format: "image"
+      table: this.TABLE_CIRCULAR,
+      format: "image",
+      location: this.DIRECTORY.circularUpload
     }
   },
   Bills: {
     name: "bill",
     pdf: {
-      table: "billing",
-      format: "pdf"
+      table: this.TABLE_BILLING,
+      format: "pdf",
+      location: this.DIRECTORY.billUpload
     },
     image: {
-      table: "billing",
-      format: "image"
+      table: this.TABLE_BILLING,
+      format: "image",
+      location: this.DIRECTORY.billUpload
     }
   },
   TimeTable: {
     name: "timetable",
     pdf: {
-      table: "",
-      format: "pdf"
+      table: this.TABLE_TIME_TABLE,
+      format: "pdf",
+      location: this.DIRECTORY.timetableUpload
     },
     image: {
-      table: "",
-      format: "image"
+      table: this.TABLE_TIME_TABLE,
+      format: "image",
+      location: this.DIRECTORY.timetableUpload
     }
+  }
+};
+
+module.exports.MESSAGE_TYPE = {
+  Message: {
+    name: "message",
+    table: this.TABLE_MESSAGE,
+    info: ""
+  },
+  Complaint: {
+    name: "complaint",
+    table: this.TABLE_COMPLAINTS,
+    info: this.TABLE_STUDENT
   }
 };
