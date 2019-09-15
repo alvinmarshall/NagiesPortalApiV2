@@ -15,6 +15,12 @@ const router = express.Router();
 const passport = require("passport");
 const Controller = require("./student.controller");
 
+//
+// ─── CLASS TEACHER ──────────────────────────────────────────────────────────────
+// @route GET api/v1/students/teacher
+// @desc class teachers info
+// @access Protected
+
 router.get(
   "/teacher",
   passport.authenticate("jwt", { session: false }),

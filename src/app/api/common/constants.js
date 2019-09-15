@@ -43,7 +43,8 @@ module.exports.FIREBASE_TOPIC = {
 module.exports.DATE_TYPE = {
   fullDate: "ddd, mmmm dd yyyy",
   shortDate: "ddd, mmmm dd yyyy",
-  simpleDate: "mmmm d, yyyy"
+  simpleDate: "mmmm d, yyyy",
+  inDepthDate:"ddd, mmmm dd yyyy h:MM tt"
 };
 module.exports.FILE_TYPE = {
   Assignment: {

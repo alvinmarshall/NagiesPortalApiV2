@@ -6,7 +6,7 @@
     "start": "NODE_ENV=production node src/app.js",
     "serve": "NODE_ENV=production nodemon src/app.js",
     "dev": "set DEBUG=server:debug NODE_ENV=development && nodemon src/app.js ",
-    "test": "set DEBUG=server:debug NODE_ENV=test && nyc mocha --reporter spec --timeout=5000  --exit "
+    "test": "set DEBUG=server:debug NODE_ENV=test && nyc --reporter=html --reporter=text mocha  --exit"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

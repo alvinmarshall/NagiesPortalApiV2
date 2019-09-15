@@ -25,10 +25,10 @@ class UserModel {
   findOne(role, { username, password }, cb = (err, user) => {}) {
     let sql;
     if (role === USER_ROLE.Parent) {
-      sql = `SELECT id,Students_No,Level_Name,Students_Name,Index_No,Image FROM ${TABLE_STUDENT} WHERE Index_No = ? AND Password = ? LIMIT 1 `;
+      sql = `SELECT id,Students_No,Level_Name,Students_Name,Index_No,Image,Faculty_Name FROM ${TABLE_STUDENT} WHERE Index_No = ? AND Password = ? LIMIT 1 `;
     }
     if (role === USER_ROLE.Teacher) {
-      sql = `SELECT id,Teachers_No ,Level_Name,Teachers_Name ,Username, Image FROM ${TABLE_TEACHER} WHERE Username = ? AND Password = ? LIMIT 1 `;
+      sql = `SELECT id,Teachers_No ,Level_Name,Teachers_Name ,Username, Image,Faculty_Name FROM ${TABLE_TEACHER} WHERE Username = ? AND Password = ? LIMIT 1 `;
     }
     db.query(sql, [username, password])
       .then(user => {
@@ -59,10 +59,10 @@ class UserModel {
         break;
       default:
         if (role === USER_ROLE.Parent) {
-          sql = `SELECT id,Students_No,Level_Name,Students_Name,Index_No,Image FROM ${TABLE_STUDENT} WHERE id = ? LIMIT 1`;
+          sql = `SELECT id,Students_No,Level_Name,Students_Name,Index_No,Image,Faculty_Name FROM ${TABLE_STUDENT} WHERE id = ? LIMIT 1`;
         }
         if (role === USER_ROLE.Teacher) {
-          sql = `SELECT id,Teachers_No ,Level_Name,Teachers_Name ,Username, Image FROM ${TABLE_TEACHER} WHERE id = ? LIMIT 1`;
+          sql = `SELECT id,Teachers_No ,Level_Name,Teachers_Name ,Username, Image,Faculty_Name FROM ${TABLE_TEACHER} WHERE id = ? LIMIT 1`;
         }
         break;
     }

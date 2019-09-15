@@ -6,6 +6,8 @@ const {
   showData
 } = require("../../common/utils/data.format");
 const User = require("./user.model");
+const dateFormat = require("dateformat");
+const { DATE_TYPE } = require("../../common/constants");
 class UserService {
   //
   // ─── GENERATE JWT TOKEN FOR LOGIN USER ──────────────────────────────────────────
@@ -26,6 +28,8 @@ class UserService {
           token: `Bearer ${encode}`,
           imageUrl: payload.imageUrl,
           role: payload.role,
+          level: payload.level,
+          name: payload.name,
           status: 200
         };
         return cb(null, userInfo);
@@ -37,10 +41,16 @@ class UserService {
   // ─── CHANGE USER PASSWORD ───────────────────────────────────────────────────────
   //
 
-  resetPassword(role, passObj, cb = (err, msg) => {}) {
-    User.changePassword(role, passObj, (err, msg) => {
+  resetPassword({ user, passObj }, cb = (err, msg) => {}) {
+    User.changePassword(user.role, passObj, (err, msg) => {
       if (err) return cb(err);
-      return cb(null, msg);
+      let firstname = user.name.split(" ")[0];
+      let now = dateFormat(Date.now(), DATE_TYPE.inDepthDate);
+      return cb(null, {
+        msg,
+        title: "Password Reset Alert!",
+        body: `${firstname}, your password has been reset on ${now} successfully.`
+      });
     });
   }
 

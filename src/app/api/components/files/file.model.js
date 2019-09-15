@@ -19,8 +19,8 @@ const {
   TABLE_REPORT_IMAGE,
   TABLE_TIME_TABLE
 } = require("../../common/constants");
-const { uploadFile } = require("./file.util");
-
+const Firebase = require("../notification/firebase.service");
+const { firebaseTopicPayload } = require("../../common/utils/data.format");
 class FileModel {
   //
   // ────────────────────────────────────────────────────────────────────────────────────────────────── I ──────────
@@ -29,14 +29,14 @@ class FileModel {
   //
 
   static getFile({ from, fileTable, column }, cb = (err, files) => {}) {
-    let sql = `SELECT Students_Name,Teachers_Email, Report_File, Report_Date 
+    let sql = `SELECT id,Students_No,Students_Name,Teachers_Email, Report_File, Report_Date 
               FROM ${fileTable.table} WHERE ${column} = ? ORDER BY Report_Date DESC`;
     let type;
 
     switch (fileTable.table) {
       case TABLE_CIRCULAR:
         type = "circular";
-        sql = `SELECT Faculty_Name FROM ${fileTable.table} WHERE id = ? LIMIT 1`;
+        sql = `SELECT id,CID,FileName,CID_Date FROM ${fileTable.table} WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
         break;
 
       case TABLE_BILLING:
@@ -103,6 +103,31 @@ class FileModel {
       param.path
     ])
       .then(row => {
+        let payload,
+          topic = "parent",
+          title,
+          body,
+          data = {};
+        if (reportInfo) {
+          let firstname = reportInfo.studentName.split(" ")[0];
+          title = `${firstname} Terminal Report file`;
+          body = `The end of term report file for ${reportInfo.studentName}`;
+          data.type = `report_${uploadInfo.fileTable.format}`;
+          data.name = reportInfo.studentName;
+          payload = firebaseTopicPayload({ title, body, data });
+        } else {
+          title = "Assignment from class teacher";
+          body = `${user.name} has uploaded an assignment for ${user.level} class.`;
+          data.type = `assignment_${uploadInfo.fileTable.format}`;
+          data.level = user.level;
+          payload = firebaseTopicPayload({ title, body, data });
+        }
+
+        Firebase.sendTopicMessage({ topic, payload }, (err, res) => {
+          if (err) return console.error(err);
+          return console.log(res);
+        });
+
         return cb(null, {
           row: row,
           path: param.path,

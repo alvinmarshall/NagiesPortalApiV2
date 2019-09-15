@@ -35,6 +35,18 @@ class FileService {
     let column =
       user.role == USER_ROLE.Parent ? "Students_No" : "Teachers_Email";
     const fileTable = getFileTable(type, format);
+    if (type == "report") {
+      fetchFrom = user.ref;
+    }
+
+    if (type == "report" && user.role == USER_ROLE.Teacher) {
+      fetchFrom = user.username;
+    }
+
+    if (type == "circular") {
+      fetchFrom = user.faculty;
+    }
+
     return FileModel.getFile(
       { from: fetchFrom, fileTable: fileTable, column },
       (err, files) => {
@@ -49,10 +61,10 @@ class FileService {
             _format = circularFormat(files.data);
             break;
           default:
-            _format = fileDataFormat(type, files.data);
+            _format = fileDataFormat(fileTable.format, files.data);
             break;
         }
-        return cb(null, showData(_format, files.type));
+        return cb(null, showData(_format));
       }
     );
   }
@@ -68,8 +80,10 @@ class FileService {
   ) {
     let format = fileFormatType(file.mimetype);
     let fileTable = getFileTable(type, format);
+    // console.log("filetable",fileTable)
 
     preprareToUploadFile({ fileTable, file }, (err, uploadInfo) => {
+      if (err) return cb(err);
       FileModel.saveFilePath(user, uploadInfo, reportInfo, (err, result) => {
         if (err) return cb(err);
 

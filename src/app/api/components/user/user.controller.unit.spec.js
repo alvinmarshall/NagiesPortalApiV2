@@ -18,6 +18,10 @@ const User = require("./user.model");
 const Service = require("./user.service");
 const expect = require("chai").expect;
 
+const MyFunc = {}
+MyFunc.someTest = (value,cb=(err,result) =>{})=>{
+  return cb(null,value+" callback")
+}
 describe("Unit Test User Controller", () => {
   let req = {
       body: {
@@ -62,4 +66,17 @@ describe("Unit Test User Controller", () => {
       })
     );
   });
+
+  describe('Change Password', () => {
+  
+
+    it('should do some thing',sinontest(function(){
+     
+     
+      
+    }))
+    
+   
+  })
+  
 });

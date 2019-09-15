@@ -12,6 +12,8 @@
 
 const { USER_ROLE, DATE_TYPE } = require("../../common/constants");
 const forEach = require("lodash").forEach;
+const isEmpty = require("lodash").isEmpty;
+const trim = require("lodash").trim;
 const dateFormat = require("dateformat");
 module.exports = {
   //
@@ -60,7 +62,8 @@ module.exports = {
           role: USER_ROLE.Parent,
           username: data.Index_No,
           name: data.Students_Name,
-          imageUrl: data.Image
+          imageUrl: data.Image,
+          faculty: data.Faculty_Name
         };
       case USER_ROLE.Teacher:
         return {
@@ -70,7 +73,8 @@ module.exports = {
           role: USER_ROLE.Teacher,
           username: data.Username,
           name: data.Teachers_Name,
-          imageUrl: data.Image
+          imageUrl: data.Image,
+          faculty: data.Faculty_Name
         };
       default:
         return {};
@@ -144,6 +148,7 @@ module.exports = {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
+        uid: data[key].id,
         sender: data[key].Message_BY,
         level: data[key].Message_Level,
         content: data[key].Message,
@@ -179,6 +184,8 @@ module.exports = {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
+        id: data[key].id,
+        studentNo: data[key].Students_No,
         studentName: data[key].Students_Name,
         teacherEmail: data[key].Teachers_Email,
         fileUrl: data[key].Report_File,
@@ -216,6 +223,7 @@ module.exports = {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
+        uid: data[key].id,
         studentNo: data[key].Students_No,
         studentName: data[key].Students_Name,
         level: data[key].Level_Name,
@@ -245,13 +253,18 @@ module.exports = {
   // ─── FIREBASE MESSAGE PAYLOAD ───────────────────────────────────────────────────
   //
 
-  firebaseTopicPayload: (title, message, topic) => {
+  firebaseTopicPayload: ({ title, body, data, image }) => {
     return {
       data: {
-        message: message,
-        title: title
-      },
-      topic: topic
+        title,
+        body,
+        type: data.type,
+        level: !isEmpty(trim(data.level)) ? trim(data.level) : "",
+        name: !isEmpty(trim(data.name)) ? trim(data.name) : "",
+        image: !isEmpty(trim(image)) ? trim(image) : "",
+        sound: "default",
+        vibrate: "true"
+      }
     };
   },
 

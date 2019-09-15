@@ -84,13 +84,12 @@ module.exports = {
       }
       fs.chmod(filePath, 0707, err => {
         if (err) {
-          console.error(err);
-          return;
+          return console.error(err);
         }
       });
 
       let destination = `${fileTable.location}/${fileToUpload.name}`;
-      return cb(null, { fileTable: fileTable, destination: destination });
+      return cb(null, { fileTable,  destination });
     });
   },
 

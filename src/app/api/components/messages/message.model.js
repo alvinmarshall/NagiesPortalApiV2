@@ -2,14 +2,14 @@
  * @author Kelvin Birikorang
  * @email kelvinbirikorang@mail.com
  * @create date 2019-09-11 14:27:40
- * @modify date 2019-09-11 16:07:08
+ * @modify date 2019-09-30 14:52:41
  * @desc [Message model]
  */
 
 //
 // ─── IMPORT ─────────────────────────────────────────────────────────────────────
 //
-const { TABLE_MESSAGE } = require("../../common/constants");
+const { TABLE_MESSAGE, TABLE_COMPLAINTS } = require("../../common/constants");
 const db = require("../../config/database");
 const isEmpty = require("lodash").isEmpty;
 class MessageModel {
@@ -17,13 +17,25 @@ class MessageModel {
   // ─── GET TYPE MESSAGE ───────────────────────────────────────────────────────────
   //
 
-  static getMessage(from, cb = (err, msg) => {}) {
+  static getMessage({ user, from }, cb = (err, result) => {}) {
     let sql = `SELECT id, Message_BY, M_Date, Message, Message_Level, M_Read
-         FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC`;
-
-    db.query(sql, [from])
+              FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC`,
+      param = user.level,
+      type = from;
+    switch (from) {
+      case "announcement":
+        param = "administrator";
+        break;
+      case "complaint":
+        sql = `SELECT  id, Students_No, Students_Name,Level_Name,Guardian_Name,Guardian_No, 
+              Teachers_Name,Message,Message_Date FROM ${TABLE_COMPLAINTS}
+              where Level_Name = ? ORDER BY Message_Date DESC`;
+        break;
+      default:
+    }
+    db.query(sql, [param])
       .then(msg => {
-        return cb(null, msg);
+        return cb(null, { type: type, message: msg });
       })
       .catch(err => {
         return cb(err);
@@ -53,8 +65,9 @@ class MessageModel {
               id: row.insertId,
               level: user.level,
               type: {
-                title: "message",
+                title: `${user.name} sent a message`,
                 from: "teacher",
+                type: "message",
                 msg: messageData.message
               }
             });
@@ -102,8 +115,9 @@ class MessageModel {
                   status: 200,
                   id: row.insertId,
                   type: {
-                    title: "complaint",
+                    title: `${_info.Guardian_Name} sent you a complain`,
                     from: "parent",
+                    type: "complaint",
                     msg: messageData.message
                   }
                 });
@@ -117,6 +131,27 @@ class MessageModel {
           });
         break;
     }
+  }
+
+  //
+  // ─── DELETE MESSAGE ─────────────────────────────────────────────────────────────
+  //
+  static deleteMessage({ type, id }, cb = (err, res) => {}) {
+    let table = type === "complaints" ? TABLE_COMPLAINTS : TABLE_MESSAGE;
+    let sql = `DELETE FROM ${table} WHERE id = ?`;
+    db.query(sql, [id])
+      .then(row => {
+        if (row.affectedRows > 0)
+          return cb(null, { message: "message deleted successfully",status:200 });
+        return cb({
+          message: "message not found, delete action failed",
+          status: 404
+        });
+      })
+      .catch(err => {
+        console.error(err)
+        cb({ message: "something went wrong try again", status: 500 });
+      });
   }
 }
 

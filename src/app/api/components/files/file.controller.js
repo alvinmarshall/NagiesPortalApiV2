@@ -12,6 +12,7 @@
 const Service = require("./file.service");
 const { validationResult } = require("express-validator");
 const path = require("path");
+const isEmpty = require("lodash").isEmpty;
 class FileController {
   //
   // ─── GET SPECIFIED FILE PATH ────────────────────────────────────────────────────
@@ -52,6 +53,8 @@ class FileController {
         .status(403)
         .send({ message: "You don't have access to this route", status: 403 });
 
+    if (isEmpty(req.files))
+      return res.status(400).send({ message: "No file selected", status: 400 });
     let type = req.query.type,
       file = req.files.file,
       reportInfo;
@@ -100,7 +103,7 @@ class FileController {
         .send({ message: "missing query params", status: 400, errors: errors });
     }
 
-    if (user.role != "teacher")
+    if (req.user.role != "teacher")
       return res
         .send(403)
         .send({ message: "You don't have access to this route", status: 403 });

@@ -74,7 +74,8 @@ router.get(
 // @route POST api/v1/file/path
 // @desc Files upload route
 // @access Protected
-//query param: type
+// @query param: type
+// @options 'assignment','report','timetable'
 
 router.post(
   "/uploads",
@@ -111,7 +112,8 @@ router.post(
 // @route DELETE api/v1/file/:id
 // @desc delete file and path
 // @access Protected
-//query param: type,format,path
+// @query param: type,format,path
+// @path id
 router.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
@@ -164,7 +166,7 @@ router.delete(
 // @route GET api/v1/file/download
 // @desc download file from asset
 // @access Public
-//query param: path
+// @query param: path
 
 router.get(
   "/download",

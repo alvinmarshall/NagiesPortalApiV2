@@ -18,8 +18,9 @@ class MessageController {
   //
 
   static getMessage(req, res) {
-    let type = req.query.from == "admin" ? "administrator" : req.user.level;
-    return Service.message(type, (err, msg) => {
+    let from = req.query.from,
+      user = req.user;
+    return Service.message({ user, from }, (err, msg) => {
       if (err) return res.send(err);
       return res.send(msg);
     });
@@ -71,6 +72,31 @@ class MessageController {
         return res.send(result);
       }
     );
+  }
+
+  static deleteMessageById(req, res) {
+    let errors = {};
+
+    if (!req.params.id) errors.id = "provide message id path";
+
+    if (!req.params.type) errors.type = "provide message type path";
+
+    if (!(req.params.type == "complaint" || req.params.type == "message"))
+      errors.invalidPath = "invalid message type";
+    if (Object.keys(errors).length > 0)
+      return res
+        .status(400)
+        .send({ message: "field not set", status: 400, errors });
+    let type = req.params.type,
+      id = req.params.id;
+
+    type = type === "complaint" ? "complaints" : type;
+    return Service.deleteMessageById({ type, id }, (err, msg) => {
+      if (err) {
+        return res.status(err.status).send({ error: err });
+      }
+      return res.send(msg);
+    });
   }
 }
 

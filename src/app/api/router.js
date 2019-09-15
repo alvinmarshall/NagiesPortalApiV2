@@ -16,6 +16,7 @@ const fileRoute = require("./components/files");
 const studentRoute = require("./components/student");
 const teacherRoute = require("./components/teacher");
 const homeRoute = require("./components/home");
+const firebaseRoute = require('./components/notification')
 
 //
 // ────────────────────────────────────────────────────────── I ──────────
@@ -30,4 +31,5 @@ module.exports = app => {
   app.use("/api/v1/file", fileRoute);
   app.use("/api/v1/students", studentRoute);
   app.use("/api/v1/teacher", teacherRoute);
+  app.use("/api/v1/firebase",firebaseRoute)
 };

@@ -18,10 +18,10 @@ const Firebase = {};
 // ──────────────────────────────────────────────────────────────────────────────────────
 //
 
-Firebase.sendTopicMessage = (message, done = (err, rs) => {}) => {
+Firebase.sendTopicMessage = ({ topic, payload }, done = (err, rs) => {}) => {
   return firebase
     .messaging()
-    .send(message)
+    .sendToTopic(topic, payload)
     .then(resp => {
       return done(null, resp);
     })

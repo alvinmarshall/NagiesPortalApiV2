@@ -3,6 +3,7 @@ const config = require("config");
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
+const logger = require("morgan");
 const fileUpload = require("express-fileupload");
 const app = express();
 const bodyParser = require("body-parser");
@@ -13,6 +14,7 @@ const firebase = require("firebase-admin");
 //bodyparser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(logger("dev"));
 // file upload
 app.use(fileUpload());
 //set passport
@@ -28,12 +30,12 @@ firebase.initializeApp({
   databaseURL: config.get("databaseUrl.url")
 });
 
-// catch 404 and forward to error handler
+// // catch 404 and forward to error handler
 app.use((req, res, next) => {
   next(createError(404));
 });
 
-// error handler
+// // error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -44,8 +46,6 @@ app.use((err, req, res, next) => {
   res.send({ message: "endpoint unavaialble", status: 404 });
   next();
 });
-
-
 
 const listen = app.listen(config.get("port"), () => {
   debug(

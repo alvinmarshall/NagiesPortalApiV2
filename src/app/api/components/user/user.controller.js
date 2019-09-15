@@ -13,6 +13,8 @@
 const { validationResult } = require("express-validator");
 const User = require("./user.model");
 const Service = require("../user/user.service");
+const { firebaseTopicPayload } = require("../../common/utils/data.format");
+const Firebase = require("../notification/firebase.service");
 
 //
 // ─── USER AUTHENTICATION ────────────────────────────────────────────────────────
@@ -53,17 +55,28 @@ class UserController {
   static changePassword(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.send(errors);
+      return res.status(400).send({status:400,errors});
     }
     let passObj = {
       _id: req.user.id,
       _old: req.body.old_password,
       _confirm: req.body.confirm_password
     };
-
-    return Service.resetPassword(req.user.role, passObj, (err, msg) => {
-      if (err) return res.status(err.status).send(err);
-      return res.status(msg.status).send(msg);
+    let user = req.user;
+    return Service.resetPassword({user, passObj}, (err, msg) => {
+      if (err) return res.status(400).send(err);
+      let topic = user.role === "teacher" ? "teachers" : user.role;
+      let title = msg.title;
+      let body = msg.body;
+      let data = {};
+      data.type = "password";
+      data.name = user.name
+      const payload = firebaseTopicPayload({ title, body, data });
+      Firebase.sendTopicMessage({ topic, payload }, (err, res) => {
+        if (err) return console.error(err);
+        return console.log(res);
+      });
+      return res.send(msg.msg);
     });
   }
 
