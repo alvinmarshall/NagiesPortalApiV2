@@ -3,3 +3,7 @@ node_modules
 .idea
 public
 config
+.env
+.env_production
+.yarn-error.log
+logs

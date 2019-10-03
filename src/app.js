@@ -3,18 +3,20 @@ const config = require("config");
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
-const logger = require("morgan");
+const morgan = require("morgan");
 const fileUpload = require("express-fileupload");
 const app = express();
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const firebase = require("firebase-admin");
+const logger = require("./app/api/config/logger.service");
+
 
 //middleware
 //bodyparser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(logger("dev"));
+app.use(morgan("dev"));
 // file upload
 app.use(fileUpload());
 //set passport
@@ -53,7 +55,8 @@ const listen = app.listen(config.get("port"), () => {
       "name"
     )}`
   );
-  console.log(
+  
+  logger.info(
     `server is running on port: ${config.get("port")} and in ${config.get(
       "name"
     )}`
