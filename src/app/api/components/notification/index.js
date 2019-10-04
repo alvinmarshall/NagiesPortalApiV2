@@ -7,9 +7,10 @@
  */
 const express = require("express");
 const router = express.Router();
-const Controller = require('./firebase.controller')
-router.post("/assignment",Controller.uploadAssignment)
-router.post("/report",Controller.uploadReport)
-router.post("/password",Controller.changePassword)
-router.post("/send_message",Controller.sendMessage)
+const Controller = require("./firebase.controller");
+router.post("/assignment", Controller.uploadAssignment);
+router.post("/report", Controller.uploadReport);
+router.post("/password", Controller.changePassword);
+router.post("/send_message", Controller.sendMessage);
+router.post("/send_announcement", Controller.sendAnnouncement);
 module.exports = router;

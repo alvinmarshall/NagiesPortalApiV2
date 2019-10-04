@@ -11,8 +11,15 @@ const { firebaseTopicPayload } = require("../../common/utils/data.format");
 const dateFormat = require("dateformat");
 const { DATE_TYPE } = require("../../common/constants");
 const Service = require("./firebase.service");
+const logger = require("../../config/logger.service");
 class FirebaseController {
   static sendMessage(req, res) {
+    logger.log("info", "firebase.controller.sendMessage", {
+      method: req.method,
+      query: req.query,
+      params: req.params,
+      body: req.body
+    });
     let errors = {};
     if (!req.query.to) {
       errors.to = "provide reciever eg. parent / teacher ";
@@ -30,10 +37,16 @@ class FirebaseController {
       errors.level = "provide level name";
     }
 
-    if (Object.keys(errors).length > 0)
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.sendMessage", {
+        message: "field missing",
+        status: 400,
+        errors
+      });
       return res
         .status(400)
         .send({ message: "field missing", status: 400, errors });
+    }
 
     let to = req.query.to,
       title = req.body.title,
@@ -53,11 +66,16 @@ class FirebaseController {
     if (isEmpty(trim(name))) {
       errors.name = "name can't be empty";
     }
-    if (Object.keys(errors).length > 0)
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.sendMessage", {
+        message: "invalid field provided",
+        status: 400,
+        errors
+      });
       return res
         .status(400)
         .send({ message: "invalid field provided", status: 400, errors });
-
+    }
     let topic = to === "teacher" ? "teachers" : to;
     let type = topic === "teachers" ? "complaint" : "message";
     let data = {};
@@ -75,6 +93,12 @@ class FirebaseController {
   }
 
   static changePassword(req, res) {
+    logger.log("info", "firebase.controller.changePassword", {
+      method: req.method,
+      query: req.query,
+      params: req.params,
+      body: req.body
+    });
     let errors = {};
     if (!req.body.name) {
       errors.name = "provide login name";
@@ -85,16 +109,30 @@ class FirebaseController {
     let topic = trim(req.body.role);
 
     if (Object.keys(errors).length > 0) {
-      return res
-        .status(400)
-        .send({ message: "missing field", status: 400, errors });
+      {
+        logger.log("error", "firebase.controller.changePassword", {
+          message: "missing field",
+          status: 400,
+          errors
+        });
+        return res
+          .status(400)
+          .send({ message: "missing field", status: 400, errors });
+      }
     }
-    if (!(topic === "parent" || topic === "teacher"))
+    if (!(topic === "parent" || topic === "teacher")) {
+      logger.log("error", "firebase.controller.changePassword", {
+        message: "invalid field input",
+        status: 400,
+        errors: "role should be either parent or teacher"
+      });
+
       return res.status(400).send({
         message: "invalid field input",
         status: 400,
         errors: "role should be either parent or teacher"
       });
+    }
 
     let name = trim(req.body.name);
     let type = "password";
@@ -113,6 +151,12 @@ class FirebaseController {
   }
 
   static uploadAssignment(req, res) {
+    logger.log("info", "firebase.controller.uploadAssignment", {
+      method: req.method,
+      query: req.query,
+      params: req.params,
+      body: req.body
+    });
     let errors = {};
     if (!req.body.format) {
       errors.format = "provide upload format ";
@@ -123,10 +167,16 @@ class FirebaseController {
     if (!req.body.sender) {
       errors.sender = "provide uploader name";
     }
-    if (Object.keys(errors).length > 0)
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.uploadAssignment", {
+        message: "missing fields",
+        status: 400,
+        errors
+      });
       return res
         .status(400)
         .send({ message: "missing fields", status: 400, errors });
+    }
     let format = trim(req.body.format);
     let level = trim(req.body.level);
     let sender = trim(req.body.sender);
@@ -139,10 +189,16 @@ class FirebaseController {
     if (isEmpty(trim(level))) {
       errors.level = "level name can't be empty";
     }
-    if (Object.keys(errors).length > 0)
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.uploadAssignment", {
+        message: "invalid fields",
+        status: 400,
+        errors
+      });
       return res
         .status(400)
         .send({ message: "invalid fields", status: 400, errors });
+    }
 
     let topic = "parent";
     let type = `assignment_${format}`;
@@ -160,6 +216,12 @@ class FirebaseController {
   }
 
   static uploadReport(req, res) {
+    logger.log("info", "firebase.controller.uploadReport", {
+      method: req.method,
+      query: req.query,
+      params: req.params,
+      body: req.body
+    });
     let errors = {};
     if (!req.body.format) {
       errors.format = "provide upload format ";
@@ -173,10 +235,16 @@ class FirebaseController {
     if (!req.body.studentName) {
       errors.studentName = "provide student name";
     }
-    if (Object.keys(errors).length > 0)
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.uploadReport", {
+        message: "missing fields",
+        status: 400,
+        errors
+      });
       return res
         .status(400)
         .send({ message: "missing fields", status: 400, errors });
+    }
     let format = trim(req.body.format);
     let level = trim(req.body.level);
     let sender = trim(req.body.sender);
@@ -193,10 +261,16 @@ class FirebaseController {
     if (isEmpty(name)) {
       errors.studentName = "student name can't be empty";
     }
-    if (Object.keys(errors).length > 0)
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.uploadReport", {
+        message: "invalid fields",
+        status: 400,
+        errors
+      });
       return res
         .status(400)
         .send({ message: "invalid fields", status: 400, errors });
+    }
 
     let topic = "parent";
     let type = `report_${format}`;
@@ -206,6 +280,75 @@ class FirebaseController {
       type,
       level,
       name
+    };
+    const payload = firebaseTopicPayload({ title, body, data });
+    Service.sendTopicMessage({ topic, payload }, (err, result) => {
+      if (err) return res.status(400).send({ err });
+      return res.send({ result });
+    });
+  }
+
+  static sendAnnouncement(req, res) {
+    logger.log("info", "firebase.controller.sendAnnouncement", {
+      method: req.method,
+      query: req.query,
+      params: req.params,
+      body: req.body
+    });
+    let errors = {};
+
+    if (!req.query.to) {
+      errors.to = "provide a receiver query. eg parent || teachers";
+    }
+
+    if (!req.body.title) {
+      errors.title = "provide a title";
+    }
+    if (!req.body.message) {
+      errors.message = "provide a message content";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.sendAnnouncement", {
+        message: "missing fields",
+        status: 400,
+        errors
+      });
+      return res
+        .status(400)
+        .send({ message: "missing fields", status: 400, errors });
+    }
+
+    let title = req.body.title,
+      body = req.body.message,
+      to = req.query.to;
+
+    if (isEmpty(trim(title)) || title.length < 3) {
+      errors.title = "title must be atleast 3 character set";
+    }
+    if (isEmpty(trim(body)) || body.length < 3) {
+      errors.message = "message must be atleast 3 character set";
+    }
+
+    if (!(to === "parent" || to === "teachers")) {
+      errors.to = "invalid query. eg parent or teachers";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      logger.log("error", "firebase.controller.sendAnnouncement", {
+        message: "invalid fields",
+        status: 400,
+        errors
+      });
+      return res
+        .status(400)
+        .send({ message: "invalid fields", status: 400, errors });
+    }
+
+    let topic = to;
+    let type = "announcement";
+    let data = {
+      type
     };
     const payload = firebaseTopicPayload({ title, body, data });
     Service.sendTopicMessage({ topic, payload }, (err, result) => {
