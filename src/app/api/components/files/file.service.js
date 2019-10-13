@@ -47,6 +47,10 @@ class FileService {
       fetchFrom = user.faculty;
     }
 
+    if (type == "bill") {
+      fetchFrom = user.ref;
+    }
+
     return FileModel.getFile(
       { from: fetchFrom, fileTable: fileTable, column },
       (err, files) => {
