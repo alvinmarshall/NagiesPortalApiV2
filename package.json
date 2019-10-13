@@ -1,0 +1,45 @@
+{
+  "name": "portal",
+  "version": "1.0.3",
+  "private": true,
+  "scripts": {
+    "start": "NODE_ENV=production node src/app.js",
+    "serve": "NODE_ENV=production nodemon src/app.js",
+    "dev": "set DEBUG=server:debug NODE_ENV=development && nodemon src/app.js ",
+    "test": "set DEBUG=server:debug NODE_ENV=test && nyc --reporter=html --reporter=text mocha  --exit"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dateformat": "^3.0.3",
+    "express": "~4.16.1",
+    "express-fileupload": "^1.1.5",
+    "express-validator": "^6.2.0",
+    "firebase-admin": "^8.4.0",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "mkdirp": "^0.5.1",
+    "morgan": "~1.9.1",
+    "mysql": "^2.17.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.2.1"
+  },
+  "devDependencies": {
+    "ava": "^2.3.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "config": "^3.2.2",
+    "debug": "^4.1.1",
+    "dotenv": "^8.1.0",
+    "mocha": "^6.2.0",
+    "sinon": "^7.4.2",
+    "sinon-test": "^2.4.0",
+    "supertest": "^4.0.2"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/Bik-Krlvn/NagiesPortalApiV2.git",
+  "author": "Kelvin Birikorang <kelvinbirikorang@gmail.com>",
+  "license": "MIT"
+}
