@@ -21,7 +21,7 @@ const Firebase = {};
 Firebase.sendTopicMessage = ({ topic, payload }, done = (err, rs) => {}) => {
   return firebase
     .messaging()
-    .sendToTopic(topic, payload)
+    .sendToTopic(`dev_${topic}`, payload)
     .then(resp => {
       return done(null, resp);
     })
