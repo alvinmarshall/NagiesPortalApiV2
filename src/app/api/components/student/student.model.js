@@ -13,7 +13,7 @@ const db = require("../../config/database");
 const { TABLE_TEACHER } = require("../../common/constants");
 class StudentModel {
   static findTeacher(user, cb = (err, teacher) => {}) {
-    const sql = `SELECT Teachers_No, Teachers_Name, Gender, Contact, Image FROM ${TABLE_TEACHER} WHERE Level_Name = ?`;
+    const sql = `SELECT id,Teachers_No, Teachers_Name, Gender, Contact, Image FROM ${TABLE_TEACHER} WHERE Level_Name = ?`;
     db.query(sql, [user.level])
       .then(teacher => {
         return cb(null, teacher);
