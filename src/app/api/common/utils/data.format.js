@@ -130,6 +130,7 @@ module.exports = {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
+        id: data[key].id,
         uid: data[key].Teachers_No,
         teacherName: data[key].Teachers_Name,
         gender: data[key].Gender,
