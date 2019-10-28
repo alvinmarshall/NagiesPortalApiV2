@@ -8,7 +8,7 @@
 //
 // ─── IMPORT ─────────────────────────────────────────────────────────────────────
 //
-
+const config = require("config");
 const firebase = require("firebase-admin");
 const Firebase = {};
 
@@ -19,9 +19,12 @@ const Firebase = {};
 //
 
 Firebase.sendTopicMessage = ({ topic, payload }, done = (err, rs) => {}) => {
+  const checkDevTopic =
+  config.get("name") == "Server Development" ? `dev_${topic}` : topic;
+ 
   return firebase
     .messaging()
-    .sendToTopic(`dev_${topic}`, payload)
+    .sendToTopic(checkDevTopic, payload)
     .then(resp => {
       return done(null, resp);
     })
