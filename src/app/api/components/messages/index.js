@@ -74,4 +74,19 @@ router.delete(
   Controller.deleteMessageById
 );
 
+//
+// ─── GET SENT MESSAGE ────────────────────────────────────────────────────────────────
+// @route GET api/v1/message
+// @desc Message route
+// @access Protected
+// @query params 'from'
+// @options 'announcement','complain'
+
+router.get(
+  "/sent",
+  passport.authenticate("jwt", { session: false }),
+  Controller.getSentMessage
+);
+
+
 module.exports = router;
