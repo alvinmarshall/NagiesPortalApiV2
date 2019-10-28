@@ -36,7 +36,7 @@ class FileModel {
     switch (fileTable.table) {
       case TABLE_CIRCULAR:
         type = "circular";
-        sql = `SELECT id,CID,FileName,CID_Date FROM ${fileTable.table} WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
+        sql = `SELECT id,CID,FileName,CID_Date FROM ${fileTable.table} WHERE Faculty_Name = ? ORDER BY CID_Date ASC `;
         break;
 
       case TABLE_BILLING:
