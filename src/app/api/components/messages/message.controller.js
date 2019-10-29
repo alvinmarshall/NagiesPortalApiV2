@@ -98,6 +98,18 @@ class MessageController {
       return res.send(msg);
     });
   }
+
+  //
+  // ─── GET SENT MESSAGE BY USER ───────────────────────────────────────────────────
+  //
+
+  static getSentMessage(req, res) {
+    let user = req.user;
+    return Service.sentMessage({ user }, (err, msg) => {
+      if (err) return res.send(err);
+      return res.send(msg);
+    });
+  }
 }
 
 module.exports = MessageController;

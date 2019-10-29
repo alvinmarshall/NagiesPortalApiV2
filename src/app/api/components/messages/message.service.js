@@ -21,9 +21,9 @@ const {
   firebaseTopicPayload
 } = require("../../common/utils/data.format");
 const Firebase = require("../notification/firebase.service");
+const { USER_ROLE } = require("../../common/constants");
 
 class MessageService {
-  
   static message({ user, from }, cb = (err, msg) => {}) {
     return Message.getMessage({ user, from }, (err, result) => {
       let _msg;
@@ -71,6 +71,24 @@ class MessageService {
     return Message.deleteMessage({ type, id }, (err, res) => {
       if (err) return cb(err);
       return cb(null, res);
+    });
+  }
+
+  static sentMessage({ user }, cb = (err, msg) => {}) {
+    const from = user.role == USER_ROLE.Parent ? "complaint" : "message";
+    return Message.getSentMessage({ user, from }, (err, result) => {
+      let _msg;
+      if (err) return cb(err);
+
+      if (isEmpty(result.message)) return cb(null, noDataFormat());
+
+      if (from == "complaint") {
+        _msg = complaintDataFormat(result.message);
+        return cb(null, showData(_msg, "complaints"));
+      }
+
+      _msg = messageDataFormat(result.message);
+      return cb(null, showData(_msg, "messages"));
     });
   }
 }

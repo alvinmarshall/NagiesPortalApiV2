@@ -142,15 +142,49 @@ class MessageModel {
     db.query(sql, [id])
       .then(row => {
         if (row.affectedRows > 0)
-          return cb(null, { message: "message deleted successfully",status:200 });
+          return cb(null, {
+            message: "message deleted successfully",
+            status: 200
+          });
         return cb({
           message: "message not found, delete action failed",
           status: 404
         });
       })
       .catch(err => {
-        console.error(err)
+        console.error(err);
         cb({ message: "something went wrong try again", status: 500 });
+      });
+  }
+
+  //
+  // ─── GET USER SEMT MESSAGE ──────────────────────────────────────────────────────
+  //
+
+  static getSentMessage({ user, from }, cb = (err, result) => {}) {
+    let sql,
+      param,
+      type = from;
+    switch (from) {
+      case "message":
+        param = user.username;
+        sql = `SELECT id, Message_BY, M_Date, Message, Message_Level, M_Read
+        FROM ${TABLE_MESSAGE} WHERE Message_BY = ? ORDER BY M_Date DESC`;
+        break;
+      case "complaint":
+        param = user.ref;
+        sql = `SELECT  id, Students_No, Students_Name,Level_Name,Guardian_Name,Guardian_No, 
+              Teachers_Name,Message,Message_Date FROM ${TABLE_COMPLAINTS}
+              where Students_No = ? ORDER BY Message_Date DESC`;
+        break;
+      default:
+    }
+    db.query(sql, [param])
+      .then(msg => {
+        return cb(null, { type: type, message: msg });
+      })
+      .catch(err => {
+        return cb(err);
       });
   }
 }
