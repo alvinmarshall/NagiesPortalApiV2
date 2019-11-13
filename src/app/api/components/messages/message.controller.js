@@ -63,7 +63,7 @@ class MessageController {
         .send({ message: "field invalid", status: 400, error: error });
 
     return Service.send(
-      { to: to, type: type, user: user, message: messagebody },
+      { to, type, user, message: messagebody },
       (err, result) => {
         if (err)
           return res

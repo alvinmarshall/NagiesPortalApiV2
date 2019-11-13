@@ -76,11 +76,9 @@ router.delete(
 
 //
 // ─── GET SENT MESSAGE ────────────────────────────────────────────────────────────────
-// @route GET api/v1/message
-// @desc Message route
+// @route GET api/v1/message/sent
+// @desc Sent Message route
 // @access Protected
-// @query params 'from'
-// @options 'announcement','complain'
 
 router.get(
   "/sent",

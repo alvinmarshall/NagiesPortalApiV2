@@ -51,9 +51,15 @@ class MessageService {
         let body = result.type.msg;
         let data = {};
         data.type = result.type.type;
+
         if (topic === "teachers") {
           data.name = message.teacherName;
         }
+
+        if (result.target_name != "") {
+          data.name = result.target_name;
+        }
+
         data.level = user.level;
         let payload = firebaseTopicPayload({ title, body, data });
         Firebase.sendTopicMessage({ topic, payload }, (err, res) => {

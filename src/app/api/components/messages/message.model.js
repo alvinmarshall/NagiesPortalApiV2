@@ -12,6 +12,7 @@
 const { TABLE_MESSAGE, TABLE_COMPLAINTS } = require("../../common/constants");
 const db = require("../../config/database");
 const isEmpty = require("lodash").isEmpty;
+const has = require("lodash").has;
 class MessageModel {
   //
   // ─── GET TYPE MESSAGE ───────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ class MessageModel {
 
   static getMessage({ user, from }, cb = (err, result) => {}) {
     let sql = `SELECT id, Message_BY, M_Date, Message, Message_Level, M_Read
-              FROM ${TABLE_MESSAGE} WHERE Message_Level = ? ORDER BY M_Date DESC`,
+              FROM ${TABLE_MESSAGE} WHERE Message_Level = ? OR Message_Level = ? ORDER BY M_Date DESC`,
       param = user.level,
       type = from;
     switch (from) {
@@ -33,7 +34,7 @@ class MessageModel {
         break;
       default:
     }
-    db.query(sql, [param])
+    db.query(sql, [param, user.ref])
       .then(msg => {
         return cb(null, { type: type, message: msg });
       })
@@ -49,12 +50,25 @@ class MessageModel {
     { to, type, user, messageData },
     cb = (err, result) => {}
   ) {
-    let sql, info;
+    let sql,
+      info,
+      target_name = "",
+      level = user.level;
+
+    if (has(messageData, "target_name")) { //check for selected student name
+      target_name = messageData.target_name;
+      if (has(messageData, "target_id")) { //checl for selected student reference number
+        level =
+          messageData.target_id == "" ? user.level : messageData.target_id;
+      }
+      console.log("Target name set", target_name);
+      console.log("Target id set", level);
+    }
 
     switch (to) {
       case "parent": // teacher sending this
         sql = `INSERT INTO ${type.table} SET Message_BY = ?, Message = ?,Message_Level = ?`;
-        db.query(sql, [user.username, messageData.message, user.level])
+        db.query(sql, [user.username, messageData.message, level])
           .then(row => {
             if (row.affectedRows === 0) {
               return cb({ message: "message failed", status: 304 });
@@ -64,6 +78,7 @@ class MessageModel {
               status: 200,
               id: row.insertId,
               level: user.level,
+              target_name,
               type: {
                 title: `${user.name} sent a message`,
                 from: "teacher",
@@ -114,6 +129,7 @@ class MessageModel {
                   message: "message sent",
                   status: 200,
                   id: row.insertId,
+                  target_name,
                   type: {
                     title: `${_info.Guardian_Name} sent you a complain`,
                     from: "parent",
