@@ -30,19 +30,19 @@ class FileModel {
 
   static getFile({ from, fileTable, column }, cb = (err, files) => {}) {
     let sql = `SELECT id,Students_No,Students_Name,Teachers_Email, Report_File, Report_Date 
-              FROM ${fileTable.table} WHERE ${column} = ? ORDER BY Report_Date DESC`;
+              FROM ${fileTable.table} WHERE ${column} = ? ORDER BY id DESC`;
     let type;
 
     switch (fileTable.table) {
       case TABLE_CIRCULAR:
         type = "circular";
-        sql = `SELECT id,CID,FileName,CID_Date FROM ${fileTable.table} WHERE Faculty_Name = ? ORDER BY CID_Date ASC `;
+        sql = `SELECT id,CID,FileName,CID_Date FROM ${fileTable.table} WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
         break;
 
       case TABLE_BILLING:
         type = "bill";
         sql = `SELECT id, Students_No, Students_Name, Uploader, Bill_File, Report_Date 
-                FROM ${fileTable.table} WHERE Students_No = ? ORDER BY Report_Date DESC`;
+                FROM ${fileTable.table} WHERE Students_No = ? ORDER BY id DESC`;
         break;
 
       case TABLE_ASSIGNMENT_IMAGE:
