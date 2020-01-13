@@ -44,7 +44,7 @@ module.exports.DATE_TYPE = {
   fullDate: "ddd, mmmm dd yyyy",
   shortDate: "ddd, mmmm dd yyyy",
   simpleDate: "mmmm d, yyyy",
-  inDepthDate:"ddd, mmmm dd yyyy h:MM tt"
+  inDepthDate: "ddd, mmmm dd yyyy h:MM tt"
 };
 module.exports.FILE_TYPE = {
   Assignment: {
@@ -125,4 +125,11 @@ module.exports.MESSAGE_TYPE = {
     table: this.TABLE_COMPLAINTS,
     info: this.TABLE_STUDENT
   }
+};
+
+module.exports.getCommonDateStyle = () => {
+  return new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
 };

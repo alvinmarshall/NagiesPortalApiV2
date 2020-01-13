@@ -17,7 +17,9 @@ const {
   TABLE_ASSIGNMENT_PDF,
   TABLE_REPORT_PDF,
   TABLE_REPORT_IMAGE,
-  TABLE_TIME_TABLE
+  TABLE_TIME_TABLE,
+  TABLE_TEACHER,
+  getCommonDateStyle
 } = require("../../common/constants");
 const Firebase = require("../notification/firebase.service");
 const { firebaseTopicPayload } = require("../../common/utils/data.format");
@@ -87,7 +89,12 @@ class FileModel {
       case TABLE_BILLING:
         break;
       default:
-        sql = `INSERT INTO ${uploadInfo.fileTable.table} SET Students_No = ?,Students_Name = ?,Teachers_Email = ?,Report_File = ?`;
+        sql = `
+        INSERT INTO ${uploadInfo.fileTable.table} 
+        SET Students_No = ?,
+        Students_Name = ?,
+        Teachers_Email = ?,
+        Report_File = ?`;
         break;
     }
 
@@ -102,7 +109,10 @@ class FileModel {
       param.teacherEmail,
       param.path
     ])
-      .then(row => {
+      .then(async row => {
+        const date = getCommonDateStyle();
+        const sql = `UPDATE ${TABLE_TEACHER} SET Dob = ? WHERE Username = ?`;
+        await db.query(sql, [date, param.studentName]);
         let payload,
           topic = "parent",
           title,
