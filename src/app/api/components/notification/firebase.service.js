@@ -21,7 +21,6 @@ const Firebase = {};
 Firebase.sendTopicMessage = ({ topic, payload }, done = (err, rs) => {}) => {
   const checkDevTopic =
   config.get("name") == "Server Development" ? `dev_${topic}` : topic;
- 
   return firebase
     .messaging()
     .sendToTopic(checkDevTopic, payload)

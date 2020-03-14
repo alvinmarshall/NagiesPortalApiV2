@@ -25,6 +25,7 @@ module.exports.TABLE_MESSAGE = "message";
 module.exports.TABLE_BILLING = "billing";
 module.exports.TABLE_COMPLAINTS = "complaints";
 module.exports.TABLE_TIME_TABLE = "timetable";
+module.exports.TABLE_RECEIPT = "receipt";
 
 module.exports.DIRECTORY = {
   assignmentUpload: "students/assignment",
@@ -32,7 +33,8 @@ module.exports.DIRECTORY = {
   timetableUpload: "students/Timetable",
   circularUpload: "students/Circular",
   billUpload: "students/Bill",
-  teachersUpload: "teacher/uploads"
+  teachersUpload: "teacher/uploads",
+  receiptUpload:"students/Receipt"
 };
 module.exports.FIREBASE_TOPIC = {
   Parent: "parent",
@@ -111,7 +113,20 @@ module.exports.FILE_TYPE = {
       format: "image",
       location: this.DIRECTORY.timetableUpload
     }
-  }
+  },
+  Receipt: {
+    name: "receipt",
+    pdf: {
+      table: this.TABLE_RECEIPT,
+      format: "pdf",
+      location: this.DIRECTORY.receiptUpload
+    },
+    image: {
+      table: this.TABLE_RECEIPT,
+      format: "image",
+      location: this.DIRECTORY.receiptUpload
+    }
+  },
 };
 
 module.exports.MESSAGE_TYPE = {

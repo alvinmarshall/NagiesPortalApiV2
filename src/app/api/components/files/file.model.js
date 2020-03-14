@@ -19,6 +19,7 @@ const {
   TABLE_REPORT_IMAGE,
   TABLE_TIME_TABLE,
   TABLE_TEACHER,
+  TABLE_RECEIPT,
   getCommonDateStyle
 } = require("../../common/constants");
 const Firebase = require("../notification/firebase.service");
@@ -87,6 +88,28 @@ class FileModel {
     switch (uploadInfo.fileTable.table) {
       case TABLE_CIRCULAR:
       case TABLE_BILLING:
+        break;
+      case TABLE_RECEIPT:
+      
+        const sql2 = `
+          INSERT 
+          INTO ${uploadInfo.fileTable.table}
+          SET
+          Ref_No = ?,
+          Name = ?,
+          Level = ?,
+          Image = ?,
+          Date = ?      `;
+        return this.uploadReceipt(user, sql2,param)
+          .then(row => {
+            cb(null, {
+              row: row,
+              path: param.path,
+              format: uploadInfo.fileTable.format
+            });
+          })
+          .catch(err => cb(err));
+
         break;
       default:
         sql = `

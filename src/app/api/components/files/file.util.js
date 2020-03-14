@@ -36,6 +36,9 @@ module.exports = {
       case FILE_TYPE.TimeTable.name:
         objs = FILE_TYPE.TimeTable;
         break;
+      case FILE_TYPE.Receipt.name:
+        objs = FILE_TYPE.Receipt;
+        break;
 
       default:
         break;

@@ -17,7 +17,7 @@ class TeacherModel {
   //
 
   static findStudent(level, cb = (err, student) => {}) {
-    const sql = `SELECT Students_No,Students_Name,Gender,Index_No,Image FROM student WHERE Level_Name =  ?`;
+    const sql = `SELECT id,Students_No,Students_Name,Gender,Index_No,Image FROM student WHERE Level_Name =  ?`;
     db.query(sql, [level])
       .then(student => cb(null, student))
       .catch(err => cb(err));

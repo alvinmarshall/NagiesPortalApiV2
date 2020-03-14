@@ -70,14 +70,14 @@ class FileController {
       return res.status(400).send(errors);
     }
 
-    if (req.user.role != "teacher") {
-      logger.log("error", "file.controller.upload", {
-        res: { message: "You don't have access to this route", status: 403 }
-      });
-      return res
-        .status(403)
-        .send({ message: "You don't have access to this route", status: 403 });
-    }
+    // if (req.user.role != "teacher") {
+    //   logger.log("error", "file.controller.upload", {
+    //     res: { message: "You don't have access to this route", status: 403 }
+    //   });
+    //   return res
+    //     .status(403)
+    //     .send({ message: "You don't have access to this route", status: 403 });
+    // }
 
     if (isEmpty(req.files)) {
       logger.log("error", "file.controller.upload", {
@@ -89,7 +89,7 @@ class FileController {
       file = req.files.file,
       reportInfo;
 
-    if (type == "report") {
+    if (type === "report") {
       reportInfo = {
         studentNo: req.body.studentNo,
         studentName: req.body.studentName
@@ -124,7 +124,7 @@ class FileController {
           return res.send(err);
         }
 
-        if (result.affectedRows == 0) {
+        if (result.affectedRows === 0) {
           logger.log("error", "Service.uploadType", {
             res: { message: "upload file failed", status: 304 }
           });

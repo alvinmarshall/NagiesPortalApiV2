@@ -91,7 +91,7 @@ class FileService {
       FileModel.saveFilePath(user, uploadInfo, reportInfo, (err, result) => {
         if (err) return cb(err);
 
-        if (result.affectedRows == 0)
+        if (result.affectedRows === 0)
           return cb(null, { message: "file path failed to save", status: 304 });
 
         let _upload = uploadedDataFormat(

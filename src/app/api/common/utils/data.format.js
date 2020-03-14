@@ -264,7 +264,8 @@ module.exports = {
         name: !isEmpty(trim(data.name)) ? trim(data.name) : "",
         image: !isEmpty(trim(image)) ? trim(image) : "",
         sound: "default",
-        vibrate: "true"
+        vibrate: "true",
+        status:"200"
       }
     };
   },
@@ -277,6 +278,7 @@ module.exports = {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
+        id: data[key].id,
         studentNo: data[key].Students_No,
         studentName: data[key].Students_Name,
         gender: data[key].Gender,
