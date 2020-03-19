@@ -20,7 +20,7 @@ const Firebase = {};
 
 Firebase.sendTopicMessage = ({ topic, payload }, done = (err, rs) => {}) => {
   const checkDevTopic =
-  config.get("name") == "Server Development" ? `dev_${topic}` : topic;
+    config.get("name") == "Server Development" ? `dev_${topic}` : topic;
   return firebase
     .messaging()
     .sendToTopic(checkDevTopic, payload)
@@ -30,5 +30,11 @@ Firebase.sendTopicMessage = ({ topic, payload }, done = (err, rs) => {}) => {
     .catch(err => {
       return done(err);
     });
+};
+
+Firebase.sendTopicMessageAsync = ({ topic, payload }) => {
+  const checkDevTopic =
+    config.get("name") === "Server Development" ? `dev_${topic}` : topic;
+  return firebase.messaging().sendToTopic(checkDevTopic, payload);
 };
 module.exports = Firebase;

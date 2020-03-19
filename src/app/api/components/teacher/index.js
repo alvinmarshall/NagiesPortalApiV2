@@ -22,4 +22,6 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   Controller.getClassStudent
 );
+
+router.post("/class_register", Controller.setClassRegister);
 module.exports = router;

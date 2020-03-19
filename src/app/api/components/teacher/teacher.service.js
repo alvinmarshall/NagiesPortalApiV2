@@ -26,5 +26,9 @@ class TeacherService {
       return cb(null, showData(_student, "classStudent"));
     });
   }
+
+  static setRegisterAsync(data){
+    return Teacher.setClassRegisterAsync(data)
+  }
 }
 module.exports = TeacherService;

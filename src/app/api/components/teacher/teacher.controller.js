@@ -18,16 +18,25 @@ class TeacherController {
 
   static getClassStudent(req, res) {
     if (req.user.role != "teacher")
-      return res
-        .status(403)
-        .send({
-          message: "current permission can't access this route",
-          status: 403
-        });
+      return res.status(403).send({
+        message: "current permission can't access this route",
+        status: 403
+      });
     return Service.getStudent(req.user, (err, student) => {
       if (err) return res.send(err);
       return res.send(student);
     });
+  }
+
+  static async setClassRegister(req, res) {
+    try {
+      const {register} = req.body;
+      const data = await Service.setRegisterAsync(register);
+      return res.send({ data, status: 200 });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({ status: 500, message: "Internal error" });
+    }
   }
 }
 module.exports = TeacherController;

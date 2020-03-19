@@ -26,7 +26,7 @@ module.exports.TABLE_BILLING = "billing";
 module.exports.TABLE_COMPLAINTS = "complaints";
 module.exports.TABLE_TIME_TABLE = "timetable";
 module.exports.TABLE_RECEIPT = "receipt";
-
+module.exports.TABLE_REGISTER = "register_main"
 module.exports.DIRECTORY = {
   assignmentUpload: "students/assignment",
   reportUpload: "students/Reports",
