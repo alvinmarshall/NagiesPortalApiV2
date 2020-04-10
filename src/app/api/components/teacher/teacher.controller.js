@@ -28,7 +28,7 @@ class TeacherController {
       return res.send(data);
     } catch (err) {
       console.error(err);
-      return res.send({ message: "Internal error", status: 500 });
+      return res.status(500).send({ message: "Internal error", status: 500 });
     }
   }
 
