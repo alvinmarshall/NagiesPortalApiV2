@@ -12,89 +12,89 @@
 const Message = require("./message.model");
 const {
   messageDataFormat,
-  complaintDataFormat
+  complaintDataFormat,
 } = require("../../common/utils/data.format");
-const isEmpty = require("lodash").isEmpty;
 const {
-  noDataFormat,
   showData,
-  firebaseTopicPayload
+  firebaseTopicPayload,
 } = require("../../common/utils/data.format");
 const Firebase = require("../notification/firebase.service");
 const { USER_ROLE } = require("../../common/constants");
 
 class MessageService {
-  static message({ user, from }, cb = (err, msg) => {}) {
-    return Message.getMessage({ user, from }, (err, result) => {
-      let _msg;
-      if (err) return cb(err);
+  static messageAsync({ user, from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await Message.getMessage({ user, from });
 
-      if (isEmpty(result.message)) return cb(null, noDataFormat());
+        if (from == "complaint") {
+          const msg = complaintDataFormat(data);
+          return resolve(showData(msg, "complaints"));
+        }
 
-      if (from == "complaint") {
-        _msg = complaintDataFormat(result.message);
-        return cb(null, showData(_msg, "complaints"));
+        const msg = messageDataFormat(data);
+        return resolve(showData(msg, "messages"));
+      } catch (err) {
+        reject(err);
       }
-
-      _msg = messageDataFormat(result.message);
-      return cb(null, showData(_msg, "messages"));
     });
   }
 
-  static send({ to, type, user, message }, cb = (err, result) => {}) {
-    return Message.sendMessage(
-      { to, type, user, messageData: message },
-      (err, result) => {
-        if (err) return cb(err);
-        let topic = to === "teacher" ? "teachers" : to;
-        let title = result.type.title;
-        let body = result.type.msg;
-        let data = {};
-        data.type = result.type.type;
+  static sendMessageAsync({ recipient, user, message }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await Message.saveSendMessageAsync({
+          recipient,
+          user,
+          messageData: message,
+        });
+
+        const { title, msg } = result;
+
+        const topic = recipient === "teacher" ? "teachers" : recipient;
+        const body = msg;
+        const data = {};
+        data.type = result.type;
 
         if (topic === "teachers") {
           data.name = message.teacherName;
         }
 
-        if (result.target_name != "") {
+        if (result.target_name !== "") {
           data.name = result.target_name;
         }
 
         data.level = user.level;
-        let payload = firebaseTopicPayload({ title, body, data });
-        Firebase.sendTopicMessage({ topic, payload }, (err, res) => {
-          if (err) {
-            return console.error(err);
-          }
-          return console.log(res);
-        });
-        return cb(null, payload);
+        const payload = firebaseTopicPayload({ title, body, data });
+        const _ = await Firebase.sendTopicMessageAsync({ topic, payload });
+        console.log(`firebase response`,_);
+        resolve(payload);
+      } catch (err) {
+        reject(err);
       }
-    );
-  }
-
-  static deleteMessageById({ type, id }, cb = (err, res) => {}) {
-    return Message.deleteMessage({ type, id }, (err, res) => {
-      if (err) return cb(err);
-      return cb(null, res);
     });
   }
 
-  static sentMessage({ user }, cb = (err, msg) => {}) {
-    const from = user.role == USER_ROLE.Parent ? "complaint" : "message";
-    return Message.getSentMessage({ user, from }, (err, result) => {
-      let _msg;
-      if (err) return cb(err);
+  static deleteMessageByIdAsync({ type, id }) {
+    return Message.deleteMessageAsync({ type, id });
+  }
 
-      if (isEmpty(result.message)) return cb(null, noDataFormat());
+  static sentMessageAsync({ user }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const from = user.role === USER_ROLE.Parent ? "complaint" : "message";
+        const data = await Message.getSentMessageAsync({ user, from });
 
-      if (from == "complaint") {
-        _msg = complaintDataFormat(result.message);
-        return cb(null, showData(_msg, "complaints"));
+        if (from === "complaint") {
+          const msg = complaintDataFormat(data);
+          return resolve(showData(msg, "complaints"));
+        }
+
+        const msg = messageDataFormat(data);
+        return resolve(showData(msg, "messages"));
+      } catch (err) {
+        reject(err);
       }
-
-      _msg = messageDataFormat(result.message);
-      return cb(null, showData(_msg, "messages"));
     });
   }
 }

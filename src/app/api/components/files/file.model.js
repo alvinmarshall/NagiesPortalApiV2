@@ -10,6 +10,7 @@
 // ─── IMPORT ─────────────────────────────────────────────────────────────────────
 //
 const db = require("../../config/database");
+const dateFormat = require("dateformat");
 const {
   TABLE_CIRCULAR,
   TABLE_BILLING,
@@ -20,10 +21,17 @@ const {
   TABLE_TIME_TABLE,
   TABLE_TEACHER,
   TABLE_RECEIPT,
+  TABLE_VIDEO,
+  DATE_TYPE,
+  FIREBASE_TOPIC,
   getCommonDateStyle
 } = require("../../common/constants");
-const Firebase = require("../notification/firebase.service");
-const { firebaseTopicPayload } = require("../../common/utils/data.format");
+const {
+  firebaseTopicPayload,
+  circularFormat,
+  billDataFormat,
+  fileDataFormat
+} = require("../../common/utils/data.format");
 class FileModel {
   //
   // ────────────────────────────────────────────────────────────────────────────────────────────────── I ──────────
@@ -31,45 +39,125 @@ class FileModel {
   // ────────────────────────────────────────────────────────────────────────────────────────────────────────────
   //
 
-  static getFile({ from, fileTable, column }, cb = (err, files) => {}) {
-    let sql = `SELECT id,Students_No,Students_Name,Teachers_Email, Report_File, Report_Date 
-              FROM ${fileTable.table} WHERE ${column} = ? ORDER BY id DESC`;
-    let type;
+  static getFileAsync({ from, fileTable, column }) {
+    const { table } = fileTable;
 
-    switch (fileTable.table) {
+    switch (table) {
       case TABLE_CIRCULAR:
-        type = "circular";
-        sql = `SELECT id,CID,FileName,CID_Date FROM ${fileTable.table} WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
-        break;
+        return this.getCircularAsync({ from });
 
       case TABLE_BILLING:
-        type = "bill";
-        sql = `SELECT id, Students_No, Students_Name, Uploader, Bill_File, Report_Date 
-                FROM ${fileTable.table} WHERE Students_No = ? ORDER BY id DESC`;
-        break;
+        return this.getBillAsync({ from });
 
       case TABLE_ASSIGNMENT_IMAGE:
       case TABLE_ASSIGNMENT_PDF:
-        type = "assignment";
-        break;
+        return this.getAssignmentAsync({ column, from });
 
       case TABLE_REPORT_PDF:
       case TABLE_REPORT_IMAGE:
-        type = "report";
-        break;
+        return this.getReportAsync({ column, from });
+
       case TABLE_TIME_TABLE:
-        type = "timetable";
+        return this.getTimeTableAsync({ column, from });
+
+      default:
         break;
     }
-
-    db.query(sql, [from])
-      .then(data => {
-        return cb(null, { type: type, data: data, format: fileTable.format });
-      })
-      .catch(err => {
-        return cb(err);
-      });
   }
+
+  //#region Circular
+  static getCircularAsync({ from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+        SELECT id,CID,FileName,CID_Date 
+        FROM ${TABLE_CIRCULAR} 
+        WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
+        const result = await db.query(sql, [from]);
+        const data = circularFormat(result);
+        resolve({ data });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  //#endregion
+
+  //#region Bill
+  static getBillAsync({ from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+          SELECT id, Students_No, Students_Name,
+                Uploader, Bill_File, Report_Date 
+         FROM ${TABLE_BILLING} 
+         WHERE Students_No = ? ORDER BY id DESC`;
+        const result = await db.query(sql, [from]);
+        const data = billDataFormat(result);
+        resolve({ data });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  //#endregion
+
+  //#region Assignment
+  static getAssignmentAsync({ column, from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+        SELECT id,Students_No,Students_Name,Teachers_Email, 
+        Report_File, Report_Date 
+        FROM ${TABLE_ASSIGNMENT_IMAGE} 
+        WHERE ${column} = ? ORDER BY id DESC`;
+        const result = await db.query(sql, [from]);
+        const data = fileDataFormat("image", result);
+        resolve({ data });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  //#endregion
+
+  //#region Report
+  static getReportAsync({ column, from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+        SELECT id,Students_No,Students_Name,
+            Teachers_Email, Report_File, Report_Date 
+        FROM ${TABLE_REPORT_IMAGE} 
+        WHERE ${column} = ? ORDER BY id DESC`;
+        const result = await db.query(sql, [from]);
+        const data = fileDataFormat("image", result);
+        resolve({ data });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  //#endregion
+
+  //#region TimeTable
+  static getTimeTableAsync({ column, from }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+        SELECT id,Students_No,Students_Name,Teachers_Email, 
+              Report_File, Report_Date 
+        FROM ${TABLE_TIME_TABLE} 
+        WHERE ${column} = ? ORDER BY id DESC`;
+        const result = await db.query(sql, [from]);
+        const data = fileDataFormat("image", result);
+        resolve({ data });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  //#endregion
 
   //
   // ────────────────────────────────────────────────────────────────────────────────── I ──────────
@@ -77,99 +165,138 @@ class FileModel {
   // ────────────────────────────────────────────────────────────────────────────────────────────
   //
 
-  static saveFilePath(user, uploadInfo, reportInfo, cb = (err, result) => {}) {
-    let sql,
-      param = {
-        studentNo: user.level,
-        studentName: user.username,
-        teacherEmail: user.username,
-        path: uploadInfo.destination
-      };
+  static saveFilePathAsync(user, uploadInfo, reportInfo) {
     switch (uploadInfo.fileTable.table) {
-      case TABLE_CIRCULAR:
-      case TABLE_BILLING:
-        break;
+      case TABLE_ASSIGNMENT_IMAGE:
+        return this.saveAssignmentPathAsync({ user, uploadInfo });
+      case TABLE_REPORT_IMAGE:
+        return this.saveReportPathAsync({ user, reportInfo, uploadInfo });
       case TABLE_RECEIPT:
-      
-        const sql2 = `
-          INSERT 
-          INTO ${uploadInfo.fileTable.table}
-          SET
-          Ref_No = ?,
-          Name = ?,
-          Level = ?,
-          Image = ?,
-          Date = ?      `;
-        return this.uploadReceipt(user, sql2,param)
-          .then(row => {
-            cb(null, {
-              row: row,
-              path: param.path,
-              format: uploadInfo.fileTable.format
-            });
-          })
-          .catch(err => cb(err));
-
-        break;
+        return this.saveReceiptPathAsync({ user, uploadInfo });
       default:
-        sql = `
-        INSERT INTO ${uploadInfo.fileTable.table} 
-        SET Students_No = ?,
-        Students_Name = ?,
-        Teachers_Email = ?,
-        Report_File = ?`;
         break;
     }
+  }
 
-    if (reportInfo) {
-      param.studentName = reportInfo.studentName;
-      param.studentNo = reportInfo.studentNo;
-    }
+  //#region  SaveAssignmentPath
+  static saveAssignmentPathAsync({ user, uploadInfo }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let sql;
+        const { destination, fileTable } = uploadInfo;
+        sql = `
+            INSERT INTO ${uploadInfo.fileTable.table} 
+            SET Students_No = ?,
+            Students_Name = ?,
+            Teachers_Email = ?,
+            Report_File = ?`;
+        const { level, username, name } = user;
 
-    db.query(sql, [
-      param.studentNo,
-      param.studentName,
-      param.teacherEmail,
-      param.path
-    ])
-      .then(async row => {
+        const result = await db.query(sql, [
+          level,
+          username,
+          username,
+          destination
+        ]);
+
         const date = getCommonDateStyle();
-        const sql = `UPDATE ${TABLE_TEACHER} SET Dob = ? WHERE Username = ?`;
-        await db.query(sql, [date, param.studentName]);
-        let payload,
-          topic = "parent",
-          title,
-          body,
-          data = {};
-        if (reportInfo) {
-          let firstname = reportInfo.studentName.split(" ")[0];
-          title = `${firstname} Terminal Report file`;
-          body = `The end of term report file for ${reportInfo.studentName}`;
-          data.type = `report_${uploadInfo.fileTable.format}`;
-          data.name = reportInfo.studentName;
-          payload = firebaseTopicPayload({ title, body, data });
-        } else {
-          title = "Assignment from class teacher";
-          body = `${user.name} has uploaded an assignment for ${user.level} class.`;
-          data.type = `assignment_${uploadInfo.fileTable.format}`;
-          data.level = user.level;
-          payload = firebaseTopicPayload({ title, body, data });
-        }
+        sql = `UPDATE ${TABLE_TEACHER} SET Dob = ? WHERE Username = ?`;
+        await db.query(sql, [date, username]);
+        const { affectedRows } = result;
 
-        Firebase.sendTopicMessage({ topic, payload }, (err, res) => {
-          if (err) return console.error(err);
-          return console.log(res);
-        });
+        const info = {
+          title: "Assignment from class teacher",
+          body: `${name} has uploaded an assignment for ${level} class.`,
+          data: {
+            type: `assignment_${fileTable.format}`,
+            level
+          }
+        };
 
-        return cb(null, {
-          row: row,
-          path: param.path,
-          format: uploadInfo.fileTable.format
-        });
-      })
-      .catch(err => {
-        return cb(err);
-      });
+        if (affectedRows === 0) return resolve(false);
+        const topic = FIREBASE_TOPIC.Parent;
+        const payload = this.setNotificationPayload(info);
+        resolve({ notify: true, payload, topic });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  //#endregion
+
+  //#region  SaveReportPath
+  static saveReportPathAsync({ user, reportInfo, uploadInfo }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { destination, fileTable } = uploadInfo;
+        const sql = `
+            INSERT INTO ${fileTable.table} 
+            SET Students_No = ?,
+            Students_Name = ?,
+            Teachers_Email = ?,
+            Report_File = ?`;
+        const { username, level } = user;
+        const { studentName, studentNo } = reportInfo;
+
+        const result = await db.query(sql, [
+          studentNo,
+          studentName,
+          username,
+          destination
+        ]);
+
+        const { affectedRows } = result;
+        if (affectedRows === 0) return resolve(false);
+
+        const firstname = reportInfo.studentName.split(" ")[0];
+        const info = {
+          title: `${firstname} Terminal Report file`,
+          body: `The end of term report file for ${studentName}`,
+          data: {
+            type: `report_${fileTable.format}`,
+            level
+          }
+        };
+
+        const topic = FIREBASE_TOPIC.Parent;
+        const payload = this.setNotificationPayload(info);
+        resolve({ notify: true, payload, topic });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  //#endregion
+
+  //#region  SaveReceiptPath
+  static saveReceiptPathAsync({ user, uploadInfo }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { destination, fileTable } = uploadInfo;
+        const sql = ` 
+              INSERT INTO ${fileTable.table}
+              SET
+                Ref_No = ?,
+                Name = ?,
+                Level = ?,
+                Image = ?`;
+        const { ref, name, level } = user;
+
+        const result = await db.query(sql, [ref, name, level, destination]);
+        const { affectedRows } = result;
+        resolve(affectedRows > 0);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  //#endregion
+
+  static setNotificationPayload(info) {
+    const { title, body, data } = info;
+    return firebaseTopicPayload({ title, body, data });
   }
 
   //
@@ -177,11 +304,84 @@ class FileModel {
   //   :::::: D E L E T E   F I L E   P A T H : :  :   :    :     :        :          :
   // ──────────────────────────────────────────────────────────────────────────────────
   //
-  static deleteFilePath(id, { user, fileTable }, cb = (err, result) => {}) {
-    const sql = `DELETE FROM ${fileTable.table} WHERE id = ? AND Teachers_Email = ?`;
-    db.query(sql, [id, user.username])
-      .then(row => cb(null, row))
-      .catch(err => cb(err));
+  static deleteFilePathAsync(id, { user, fileTable }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `DELETE FROM ${fileTable.table} WHERE id = ? AND Teachers_Email = ?`;
+        const result = await db.query(sql, [id, user.username]);
+        const { affectedRows } = result;
+        resolve(affectedRows > 0);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  //
+  // ──────────────────────────────────────────────────────────────────────── I ──────────
+  //   :::::: U P L O A D  V I D E O   F I L E   P A T H : :  :   :    :     :        :          :
+  // ──────────────────────────────────────────────────────────────────────────────────
+  //
+  static saveVideoFilePathAsync({ user, recipient, data }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { table } = data.info;
+        const sql = `INSERT INTO ${table} (Recipient,Sender_ID,File) VALUES (?,?,?)`;
+        const result = await db.query(sql, [recipient, user.ref, data.path]);
+        const { affectedRows } = result;
+        const notification = {
+          title: `${user.name} has uploaded a video`,
+          body: `Hey ${user.level} students, please check out this video`,
+          data: {
+            type: "video",
+            level: user.level
+          }
+        };
+        if (affectedRows === 0) {
+          return resolve(false);
+        }
+        //todo firebase notification here
+        resolve({ notification });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  static getSavedVideosPathAsync({ user }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+          SELECT v.id,
+            v.Recipient AS recipient,
+            v.Sender_ID AS refNo,
+            t.Teachers_Name AS sender,
+            v.File AS fileUrl,
+            v.Created_At AS date
+          FROM 
+            ${TABLE_VIDEO} v
+          INNER JOIN ${TABLE_TEACHER} t
+          ON t.Teachers_No = v.Sender_ID 
+          WHERE
+            v.Recipient = ?
+          ORDER BY id DESC
+        `;
+        const result = await db.query(sql, [user.level]);
+        const data = await this.resolveDataDateAsync(result);
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  static resolveDataDateAsync(data) {
+    return new Promise(resolve => {
+      data.forEach(d => {
+        d.date = dateFormat(d.date, DATE_TYPE.shortDate);
+      });
+      resolve(data);
+    });
   }
 }
 

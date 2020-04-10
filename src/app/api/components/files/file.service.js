@@ -14,7 +14,8 @@ const {
   getFileTable,
   preprareToUploadFile,
   fileFormatType,
-  findAndDelete
+  findAndDeleteAsync,
+  preprareToUploadVideoAsync
 } = require("./file.util");
 const FileModel = require("./file.model.js");
 const {
@@ -24,13 +25,16 @@ const {
   fileDataFormat,
   uploadedDataFormat
 } = require("../../common/utils/data.format");
+const FirebaseService = require("../notification/firebase.service");
+const { FIREBASE_TOPIC } = require("../../common/constants");
+const { firebaseTopicPayload } = require("../../common/utils/data.format");
 
 class FileService {
   //
   // ─── GET SPECIFIED FILES ────────────────────────────────────────────────────────
   //
 
-  static getType(user, { type, format }, cb = (err, files) => {}) {
+  static getFileTypeAsync(user, { type, format }, cb = (err, files) => {}) {
     let fetchFrom = user.role == USER_ROLE.Parent ? user.level : user.username;
     let column =
       user.role == USER_ROLE.Parent ? "Students_No" : "Teachers_Email";
@@ -51,57 +55,42 @@ class FileService {
       fetchFrom = user.ref;
     }
 
-    return FileModel.getFile(
-      { from: fetchFrom, fileTable: fileTable, column },
-      (err, files) => {
-        if (err) return cb(err);
-        let _format;
-
-        switch (files.type) {
-          case "bill":
-            _format = billDataFormat(files.data);
-            break;
-          case "circular":
-            _format = circularFormat(files.data);
-            break;
-          default:
-            _format = fileDataFormat(fileTable.format, files.data);
-            break;
-        }
-        return cb(null, showData(_format));
-      }
-    );
+    return FileModel.getFileAsync({
+      from: fetchFrom,
+      fileTable: fileTable,
+      column
+    });
   }
 
   //
   // ─── UPLOAD FILE ────────────────────────────────────────────────────────────────
   //
 
-  static uploadType(
-    user,
-    { type, file, reportInfo },
-    cb = (err, result) => {}
-  ) {
-    let format = fileFormatType(file.mimetype);
-    let fileTable = getFileTable(type, format);
-    // console.log("filetable",fileTable)
+  static uploadFileTypeAsync(user, { type, file, reportInfo }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let format = fileFormatType(file.mimetype);
+        let fileTable = getFileTable(type, format);
 
-    preprareToUploadFile({ fileTable, file }, (err, uploadInfo) => {
-      if (err) return cb(err);
-      FileModel.saveFilePath(user, uploadInfo, reportInfo, (err, result) => {
-        if (err) return cb(err);
-
-        if (result.affectedRows === 0)
-          return cb(null, { message: "file path failed to save", status: 304 });
-
-        let _upload = uploadedDataFormat(
-          result.row,
-          result.path,
-          result.format
+        const uploadInfo = await preprareToUploadFile({ fileTable, file });
+        const result = await FileModel.saveFilePathAsync(
+          user,
+          uploadInfo,
+          reportInfo
         );
 
-        return cb(null, showData(_upload));
-      });
+        if (!result) return reject(false);
+        if (result.notify) {
+          const { topic, payload } = result;
+          await FirebaseService.sendTopicMessageAsync({
+            topic,
+            payload
+          });
+        }
+        resolve(true);
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
@@ -109,22 +98,57 @@ class FileService {
   // ─── DELETE FILE ────────────────────────────────────────────────────────────────
   //
 
-  static deleteType(
-    user,
-    { id, path, type, format },
-    cb = (err, result) => {}
-  ) {
-    let fileTable = getFileTable(type, format);
-    FileModel.deleteFilePath(id, { user, fileTable }, (err, result) => {
-      if (err) return cb(err);
+  static deleteTypeAsync(user, { id, path, type, format }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const fileTable = getFileTable(type, format);
+        const result = await FileModel.deleteFilePathAsync(id, {
+          user,
+          fileTable
+        });
+        await findAndDeleteAsync(path);
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 
-      if (result.affectedRows == 0)
-        return cb(null, { message: "delete failed", status: 304 });
+  //#region  UPLOAD VIDEO FILE
+  static uploadVideoAsync({ user, recipient, file, info }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const _data = await preprareToUploadVideoAsync({ info, file });
+        const result = await FileModel.saveVideoFilePathAsync({
+          user,
+          recipient,
+          data: _data
+        });
 
-      findAndDelete(path, (err, result) => {
-        if (err) return cb(err);
-        return cb(null, result);
-      });
+        const { title, body, data } = result.notification;
+        const topic = FIREBASE_TOPIC.Parent;
+        const payload = firebaseTopicPayload({ title, body, data });
+        const fcm = await FirebaseService.sendTopicMessageAsync({
+          topic,
+          payload
+        });
+
+        resolve(fcm);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  //#endregion
+
+  static getVideosAsync({ user }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await FileModel.getSavedVideosPathAsync({ user });
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 }

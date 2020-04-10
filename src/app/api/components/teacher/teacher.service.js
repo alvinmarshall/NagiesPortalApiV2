@@ -10,7 +10,7 @@
 //
 const {
   classStudentDataFormat,
-  showData
+  showData,
 } = require("../../common/utils/data.format");
 const Teacher = require("./teacher.model");
 
@@ -19,16 +19,20 @@ class TeacherService {
   // ─── GET CLASS STUDENT ──────────────────────────────────────────────────────────
   //
 
-  static getStudent(user, cb = (err, student) => {}) {
-    return Teacher.findStudent(user.level, (err, student) => {
-      if (err) return cb(err);
-      let _student = classStudentDataFormat(student);
-      return cb(null, showData(_student, "classStudent"));
+  static getStudentAsync(user) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await Teacher.findStudentAsync(user.level);
+        const student = classStudentDataFormat(data);
+        resolve(showData(student, "classStudent"));
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
-  static setRegisterAsync(data){
-    return Teacher.setClassRegisterAsync(data)
+  static setRegisterAsync(data) {
+    return Teacher.setClassRegisterAsync(data);
   }
 }
 module.exports = TeacherService;

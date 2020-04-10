@@ -13,152 +13,25 @@ const Service = require("./file.service");
 const { validationResult } = require("express-validator");
 const path = require("path");
 const isEmpty = require("lodash").isEmpty;
+const { VIDEO_FILE } = require("../../common/constants");
 const logger = require("../../config/logger.service");
 class FileController {
   //
   // ─── GET SPECIFIED FILE PATH ────────────────────────────────────────────────────
   //
 
-  static get(req, res) {
-    const errors = validationResult(req);
-    logger.log("info", "file.controller.get.req", {
-      method: req.method,
-      query: req.query,
-      params: req.params,
-      body: req.body
-    });
-    if (!errors.isEmpty()) {
-      logger.log("error", "file.controller.get", { res:{validationError: errors} });
-      return res
-        .status(400)
-        .send({ message: "missing query params", status: 400, errors: errors });
-    }
-
-    let type = req.query.type,
-      format = req.query.format;
-
-    return Service.getType(
-      req.user,
-      { type: type, format: format },
-      (err, files) => {
-        if (err) {
-          logger.log("error", "Service.getType", {res:err});
-          return res.send(err);
-        }
-        logger.log("info", "file.controller.get", { res: files });
-        return res.send(files);
-      }
-    );
-  }
-
-  //
-  // ─── UPLOAD FILE ────────────────────────────────────────────────────────────────
-  //
-
-  static upload(req, res) {
-    const errors = validationResult(req);
-    logger.log("info", "file.controller.upload.req", {
-      method: req.method,
-      query: req.query,
-      params: req.params,
-      body: req.body
-    });
-    if (!errors.isEmpty()) {
-      logger.log("error", "file.controller.upload", {
-        res: { status: 400, validationError: errors }
+  static async get(req, res) {
+    try {
+      const errors = validationResult(req);
+      logger.log("info", "file.controller.get.req", {
+        method: req.method,
+        query: req.query,
+        params: req.params,
+        body: req.body
       });
-      return res.status(400).send(errors);
-    }
-
-    // if (req.user.role != "teacher") {
-    //   logger.log("error", "file.controller.upload", {
-    //     res: { message: "You don't have access to this route", status: 403 }
-    //   });
-    //   return res
-    //     .status(403)
-    //     .send({ message: "You don't have access to this route", status: 403 });
-    // }
-
-    if (isEmpty(req.files)) {
-      logger.log("error", "file.controller.upload", {
-        res: { message: "No file selected", status: 400 }
-      });
-      return res.status(400).send({ message: "No file selected", status: 400 });
-    }
-    let type = req.query.type,
-      file = req.files.file,
-      reportInfo;
-
-    if (type === "report") {
-      reportInfo = {
-        studentNo: req.body.studentNo,
-        studentName: req.body.studentName
-      };
-    }
-
-    if (!file) {
-      {
-        logger.log("error", "file.controller.upload", {
-          res: {
-            message:
-              "ensure that form name set to 'file' and choose a file to upload",
-            status: 400
-          }
-        });
-        return res.status(400).send({
-          message:
-            "ensure that form name set to 'file' and choose a file to upload",
-          status: 400
-        });
-      }
-    }
-
-    return Service.uploadType(
-      req.user,
-      { type, file, reportInfo },
-      (err, result) => {
-        if (err) {
-          logger.log("error", "Service.uploadType", {
-            res: err
-          });
-          return res.send(err);
-        }
-
-        if (result.affectedRows === 0) {
-          logger.log("error", "Service.uploadType", {
-            res: { message: "upload file failed", status: 304 }
-          });
-          return res.send({ message: "upload file failed", status: 304 });
-        }
-
-        logger.log("info", "Service.uploadType", {
-          res: { message: "file path uploaded successful", status: 200 }
-        });
-        return res.send({
-          message: "file path uploaded successful",
-          status: 200
-        });
-      }
-    );
-  }
-
-  //
-  // ─── DELETE FILE ────────────────────────────────────────────────────────────────
-  //
-
-  static deleteFile(req, res) {
-    const errors = validationResult(req);
-    logger.log("info", "file.controller.deleteFile.req", {
-      method: req.method,
-      query: req.query,
-      params: req.params,
-      body: req.body
-    });
-    if (!errors.isEmpty()) {
-      {
-        logger.log("error", "file.controller.deleteFile", {
-          status: 400,
-          validationError: errors
+      if (!errors.isEmpty()) {
+        logger.log("error", "file.controller.get", {
+          res: { validationError: errors }
         });
         return res.status(400).send({
           message: "missing query params",
@@ -166,35 +39,162 @@ class FileController {
           errors: errors
         });
       }
-    }
 
-    if (req.user.role != "teacher") {
-      logger.log("error", "file.controller.deleteFile", {
-        accessError: "You don't have access to this route",
-        status: 403
+      let type = req.query.type,
+        format = req.query.format;
+
+      const data = await Service.getFileTypeAsync(req.user, {
+        type: type,
+        format: format
       });
-      return res
-        .send(403)
-        .send({ message: "You don't have access to this route", status: 403 });
+
+      return res.send(data);
+    } catch (err) {
+      logger.log("error", "Service.getType", { res: err });
+      return res.send(err);
     }
+  }
 
-    let id = req.params.id,
-      { path, format, type } = req.query;
+  //
+  // ─── UPLOAD FILE ────────────────────────────────────────────────────────────────
+  //
 
-    Service.deleteType(req.user, { id, path, type, format }, (err, result) => {
-      if (err) {
-        logger.log("error", "file.controller.deleteFile", {
-          status: 500,
-          error: err
+  static async upload(req, res) {
+    try {
+      const errors = validationResult(req);
+      logger.log("info", "file.controller.upload.req", {
+        method: req.method,
+        query: req.query,
+        params: req.params,
+        body: req.body
+      });
+      if (!errors.isEmpty()) {
+        logger.log("error", "file.controller.upload", {
+          res: { status: 400, validationError: errors }
         });
-        return res.send(err);
+        return res.status(400).send(errors);
       }
-      logger.log("error", "file.controller.deleteFile", {
-        res: result,
+
+      if (isEmpty(req.files)) {
+        logger.log("error", "file.controller.upload", {
+          res: { message: "No file selected", status: 400 }
+        });
+        return res
+          .status(400)
+          .send({ message: "No file selected", status: 400 });
+      }
+      let type = req.query.type,
+        file = req.files.file,
+        reportInfo;
+
+      if (type === "report") {
+        reportInfo = {
+          studentNo: req.body.studentNo,
+          studentName: req.body.studentName
+        };
+      }
+
+      if (!file) {
+        {
+          logger.log("error", "file.controller.upload", {
+            res: {
+              message:
+                "ensure that form name set to 'file' and choose a file to upload",
+              status: 400
+            }
+          });
+          return res.status(400).send({
+            message:
+              "ensure that form name set to 'file' and choose a file to upload",
+            status: 400
+          });
+        }
+      }
+
+      const result = await Service.uploadFileTypeAsync(req.user, {
+        type,
+        file,
+        reportInfo
+      });
+
+      if (!result)
+        return res.status(400).send({
+          message: "upload failed",
+          status: 400
+        });
+
+      return res.send({
+        message: "file path uploaded successful",
         status: 200
       });
-      return res.send(result);
-    });
+    } catch (err) {
+      console.log(err);
+      return res
+        .status(500)
+        .send({ message: "Internal error occurred", status: 500 });
+    }
+  }
+
+  //
+  // ─── DELETE FILE ────────────────────────────────────────────────────────────────
+  //
+
+  static async deleteFile(req, res) {
+    try {
+      const errors = validationResult(req);
+      logger.log("info", "file.controller.deleteFile.req", {
+        method: req.method,
+        query: req.query,
+        params: req.params,
+        body: req.body
+      });
+      if (!errors.isEmpty()) {
+        {
+          logger.log("error", "file.controller.deleteFile", {
+            status: 400,
+            validationError: errors
+          });
+          return res.status(400).send({
+            message: "missing query params",
+            status: 400,
+            errors: errors
+          });
+        }
+      }
+
+      if (req.user.role != "teacher") {
+        logger.log("error", "file.controller.deleteFile", {
+          accessError: "You don't have access to this route",
+          status: 403
+        });
+        return res.send(403).send({
+          message: "You don't have access to this route",
+          status: 403
+        });
+      }
+
+      let id = req.params.id,
+        { path, format, type } = req.query;
+
+      const data = await Service.deleteTypeAsync(req.user, {
+        id,
+        path,
+        type,
+        format
+      });
+      if (!data) return res.send({ message: "File not found", status: 200 });
+
+      return res.send({ message: "File deleted successful", status: 200 });
+    } catch (err) {
+      logger.log("error", "file.controller.deleteFile", {
+        status: 500,
+        error: err
+      });
+
+      return res
+        .status(500)
+        .send({ message: "Internal error occurred", status: 500 });
+    }
   }
 
   //
@@ -230,6 +230,52 @@ class FileController {
         return;
       }
     });
+  }
+
+  static async uploadVideo(req, res) {
+    try {
+      if (!req.hasOwnProperty("files"))
+        return res
+          .status(400)
+          .send({ status: 400, message: "No file selected" });
+
+      const uploadData = req.files;
+
+      if (!uploadData.hasOwnProperty("file"))
+        return res
+          .status(400)
+          .send({ status: 400, message: "form field should be name=file" });
+
+      const recipient = req.user.level;
+      const { file } = uploadData;
+      const user = req.user;
+      const info = VIDEO_FILE.info;
+      const data = await Service.uploadVideoAsync({
+        user,
+        recipient,
+        file,
+        info
+      });
+      return res.send({ status: 200, data });
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send({ status: 500, message: "Internal error occurred" });
+    }
+  }
+
+  static async getVideos(req, res) {
+    try {
+      const user = req.user;
+      const data = await Service.getVideosAsync({ user });
+      return res.send({ status: 200, data });
+    } catch (error) {
+      console.error(err);
+      return res
+        .status(500)
+        .send({ status: 500, message: "Internal error occurred" });
+    }
   }
 }
 
