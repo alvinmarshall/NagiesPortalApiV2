@@ -209,7 +209,7 @@ class MessageModel {
       case "complaint":
         return this.getSentComplaintsAsync(user);
       default:
-        return this.getSentComplaintsAsync(user);
+        return this.getSentMessagesAsync(user);
     }
   }
 
