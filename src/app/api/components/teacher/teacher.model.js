@@ -19,11 +19,9 @@ class TeacherModel {
   // ─── FIND CLASS STUDENT ─────────────────────────────────────────────────────────
   //
 
-  static findStudent(level, cb = (err, student) => {}) {
+  static findStudentAsync(level) {
     const sql = `SELECT id,Students_No,Students_Name,Gender,Index_No,Image FROM student WHERE Level_Name =  ?`;
-    db.query(sql, [level])
-      .then(student => cb(null, student))
-      .catch(err => cb(err));
+    return db.query(sql, [level])
   }
 
   //

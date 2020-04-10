@@ -76,23 +76,30 @@ module.exports = {
   // ──────────────────────────────────────────────────────────────────────────────
   //
 
-  preprareToUploadFile: ({ fileTable, file }, cb = (err, result) => {}) => {
-    let fileToUpload = file,
-      publicPath = `public/${fileTable.location}`,
-      filePath = `${publicPath}/${fileToUpload.name}`;
-    fileToUpload.mv(filePath, err => {
-      if (err) {
-        console.error(err);
-        return cb({ message: "something went wrong, try again", status: 500 });
-      }
-      fs.chmod(filePath, 0707, err => {
-        if (err) {
-          return console.error(err);
-        }
-      });
+  preprareToUploadFile: ({ fileTable, file }) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let fileToUpload = file,
+          publicPath = `public/${fileTable.location}`,
+          filePath = `${publicPath}/${fileToUpload.name}`;
+        fileToUpload.mv(filePath, err => {
+          if (err) {
+            console.error(err);
+            return reject(err);
+          }
+          fs.chmod(filePath, 0707, err => {
+            if (err) {
+              console.error(err);
+              return reject(err);
+            }
+          });
 
-      let destination = `${fileTable.location}/${fileToUpload.name}`;
-      return cb(null, { fileTable,  destination });
+          let destination = `${fileTable.location}/${fileToUpload.name}`;
+          resolve({ fileTable, destination });
+        });
+      } catch (err) {
+        reject(err);
+      }
     });
   },
 
@@ -102,25 +109,55 @@ module.exports = {
   // ────────────────────────────────────────────────────────────────────────
   //
 
-  findAndDelete: (path, cb = (err, result) => {}) => {
-    let publicPath = `public/${path}`;
-    fs.stat(publicPath, err => {
-      if (err) {
-        console.error(err);
-        return cb({ message: "file not found", errors: err, status: 404 });
-      }
+  findAndDeleteAsync: path => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let publicPath = `public/${path}`;
+        fs.stat(publicPath, err => {
+          if (err) {
+            console.error(err);
+            return resolve(false);
+          }
 
-      fs.unlink(publicPath, err => {
-        if (err) {
-          console.error(err);
-
-          return cb({
-            message: "An error occurred, try again later",
-            status: 500
+          fs.unlink(publicPath, err => {
+            if (err) {
+              console.error(err);
+              return resolve(false);
+            }
+            return resolve(true);
           });
-        }
-        return cb(null, { message: "file deleted successful", status: 200 });
-      });
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  },
+
+  preprareToUploadVideoAsync: ({ info, file }) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let fileToUpload = file,
+          publicPath = `public/${info.location}`,
+          filePath = `${publicPath}/${fileToUpload.name}`;
+        fileToUpload.mv(filePath, err => {
+          if (err) {
+            console.error(err);
+            return reject(err);
+          }
+
+          fs.chmod(filePath, 0707, err => {
+            if (err) {
+              return reject(err);
+            }
+          });
+
+          let path = `${info.location}/${fileToUpload.name}`;
+          path.trim();
+          resolve({ path, info });
+        });
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 };

@@ -181,4 +181,19 @@ router.get(
 );
 //#endregion
 
+//#region UPLOAD VIDEOS
+router.post(
+  "/upload/video",
+  passport.authenticate("jwt", { session: false }),
+  Controller.uploadVideo
+);
+//#endregion
+
+//#region GET VIDEOS
+router.get(
+  "/videos",
+  passport.authenticate("jwt", { session: false }),
+  Controller.getVideos
+);
+//#endregion
 module.exports = router;
