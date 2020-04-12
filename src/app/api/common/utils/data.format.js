@@ -28,7 +28,7 @@ module.exports = {
   // ─── INVALID INPUT FORMAT ───────────────────────────────────────────────────────
   //
 
-  invalidInputFormat: err => {
+  invalidInputFormat: (err) => {
     return { message: "field empty", status: 400, errors: err };
   },
 
@@ -53,6 +53,7 @@ module.exports = {
   //
 
   loginPayloadFormat: (role, data) => {
+    if (!data) return null;
     switch (role) {
       case USER_ROLE.Parent:
         return {
@@ -63,7 +64,7 @@ module.exports = {
           username: data.Index_No,
           name: data.Students_Name,
           imageUrl: data.Image,
-          faculty: data.Faculty_Name
+          faculty: data.Faculty_Name,
         };
       case USER_ROLE.Teacher:
         return {
@@ -74,10 +75,10 @@ module.exports = {
           username: data.Username,
           name: data.Teachers_Name,
           imageUrl: data.Image,
-          faculty: data.Faculty_Name
+          faculty: data.Faculty_Name,
         };
       default:
-        return {};
+        return null;
     }
   },
 
@@ -101,7 +102,7 @@ module.exports = {
           index: data.Index_No,
           guardian: data.Guardian_Name,
           contact: data.Guardian_No,
-          imageUrl: data.Image
+          imageUrl: data.Image,
         };
       case USER_ROLE.Teacher:
         return {
@@ -115,7 +116,7 @@ module.exports = {
           facultyName: data.Faculty_Name,
           level: data.Level_Name,
           username: data.Username,
-          imageUrl: data.Image
+          imageUrl: data.Image,
         };
       default:
         return {};
@@ -126,7 +127,7 @@ module.exports = {
   // ─── CLASS TEACHER FORMAT ───────────────────────────────────────────────────────
   //
 
-  classTeacherFormat: data => {
+  classTeacherFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
@@ -135,7 +136,7 @@ module.exports = {
         teacherName: data[key].Teachers_Name,
         gender: data[key].Gender,
         contact: data[key].Contact,
-        imageUrl: data[key].Image
+        imageUrl: data[key].Image,
       });
     });
     return result;
@@ -145,7 +146,7 @@ module.exports = {
   // ─── MESSAGES FORMAT ─────────────────────────────────────────────────────────────
   //
 
-  messageDataFormat: data => {
+  messageDataFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
@@ -154,7 +155,7 @@ module.exports = {
         level: data[key].Message_Level,
         content: data[key].Message,
         status: data[key].M_Read,
-        date: dateFormat(data[key].M_Date, DATE_TYPE.fullDate)
+        date: dateFormat(data[key].M_Date, DATE_TYPE.fullDate),
       });
     });
     return result;
@@ -164,14 +165,14 @@ module.exports = {
   // ─── CIRCULAR FORMAT ────────────────────────────────────────────────────────────
   //
 
-  circularFormat: data => {
+  circularFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
         id: data[key].id,
         cid: data[key].CID,
         fileUrl: data[key].FileName,
-        date: dateFormat(data[key].CID_Date, DATE_TYPE.shortDate)
+        date: dateFormat(data[key].CID_Date, DATE_TYPE.shortDate),
       });
     });
     return result;
@@ -191,7 +192,7 @@ module.exports = {
         teacherEmail: data[key].Teachers_Email,
         fileUrl: data[key].Report_File,
         format: type,
-        date: dateFormat(data[key].Report_Date, DATE_TYPE.simpleDate)
+        date: dateFormat(data[key].Report_Date, DATE_TYPE.simpleDate),
       });
     });
     return result;
@@ -201,7 +202,7 @@ module.exports = {
   // ─── BILLING FORMAT ─────────────────────────────────────────────────────────────
   //
 
-  billDataFormat: data => {
+  billDataFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
@@ -210,7 +211,7 @@ module.exports = {
         studentName: data[key].Students_Name,
         sender: data[key].Uploader,
         fileUrl: data[key].Bill_File,
-        date: dateFormat(data[key].Report_Date, DATE_TYPE.simpleDate)
+        date: dateFormat(data[key].Report_Date, DATE_TYPE.simpleDate),
       });
     });
     return result;
@@ -220,7 +221,7 @@ module.exports = {
   // ─── COMPLAINT MESSAGE ──────────────────────────────────────────────────────────
   //
 
-  complaintDataFormat: data => {
+  complaintDataFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
@@ -232,7 +233,7 @@ module.exports = {
         guardianContact: data[key].Guardian_No,
         teacherName: data[key].Teachers_Name,
         message: data[key].Message,
-        date: dateFormat(data[key].Message_Date, DATE_TYPE.fullDate)
+        date: dateFormat(data[key].Message_Date, DATE_TYPE.fullDate),
       });
     });
     return result;
@@ -246,7 +247,7 @@ module.exports = {
     return {
       id: row.insertId,
       fileUrl: path,
-      format: format
+      format: format,
     };
   },
 
@@ -265,8 +266,8 @@ module.exports = {
         image: !isEmpty(trim(image)) ? trim(image) : "",
         sound: "default",
         vibrate: "true",
-        status:"200"
-      }
+        status: "200",
+      },
     };
   },
 
@@ -274,7 +275,7 @@ module.exports = {
   // ─── CLASS STUDENT FORMAT ───────────────────────────────────────────────────────
   //
 
-  classStudentDataFormat: data => {
+  classStudentDataFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
       result.push({
@@ -283,9 +284,9 @@ module.exports = {
         studentName: data[key].Students_Name,
         gender: data[key].Gender,
         indexNo: data[key].Index_No,
-        imageUrl: data[key].Image
+        imageUrl: data[key].Image,
       });
     });
     return result;
-  }
+  },
 };
