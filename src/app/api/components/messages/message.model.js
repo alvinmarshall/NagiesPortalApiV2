@@ -21,7 +21,7 @@ class MessageModel {
   // ─── GET TYPE MESSAGE ───────────────────────────────────────────────────────────
   //
 
-  static getMessage({ user, from }) {
+  static getMessagesAsync({ user, from }) {
     switch (from) {
       case "complaint":
         return this.getComplainAsync(user);

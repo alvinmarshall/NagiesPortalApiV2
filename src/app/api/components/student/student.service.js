@@ -13,7 +13,7 @@ const isEmpty = require("lodash").isEmpty;
 const {
   classTeacherFormat,
   showData,
-  noDataFormat
+  noDataFormat,
 } = require("../../common/utils/data.format");
 
 class StudentService {
@@ -21,14 +21,18 @@ class StudentService {
   // ─── GET CLASS TEACHER ──────────────────────────────────────────────────────────
   //
 
-  static teacher(user, cb = (err, teacher) => {}) {
-    return Student.findTeacher(user, (err, teacher) => {
-      if (err) return cb(err);
-      if (isEmpty(teacher)) {
-        return cb(null, noDataFormat);
+  static getTeacherAsync(user) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await Student.findTeacherAsync(user);
+        if (isEmpty(data)) {
+          return resolve(noDataFormat);
+        }
+        const teacher = classTeacherFormat(data);
+        return resolve(showData(teacher, "studentTeachers"));
+      } catch (err) {
+        reject(err);
       }
-      let _teacher = classTeacherFormat(teacher);
-      return cb(null, showData(_teacher, "studentTeachers"));
     });
   }
 }

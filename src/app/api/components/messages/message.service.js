@@ -25,7 +25,7 @@ class MessageService {
   static messageAsync({ user, from }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const data = await Message.getMessage({ user, from });
+        const data = await Message.getMessagesAsync({ user, from });
 
         if (from == "complaint") {
           const msg = complaintDataFormat(data);

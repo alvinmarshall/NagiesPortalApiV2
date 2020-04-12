@@ -12,11 +12,14 @@
 
 const Service = require("./student.service");
 class StudentController {
-  static getClassTeacher(req, res) {
-    return Service.teacher(req.user, (err, teacher) => {
-      if (err) return res.send(err);
-      return res.send(teacher);
-    });
+  static async getClassTeacher(req, res) {
+    try {
+      const user = req.user;
+      const data = await Service.getTeacherAsync(user);
+      return res.send(data);
+    } catch (err) {
+      return res.status(500).send({ message: "Internal error", status: 500 });
+    }
   }
 }
 module.exports = StudentController;
