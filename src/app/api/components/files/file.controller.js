@@ -43,7 +43,7 @@ class FileController {
       const { type, format } = req.query;
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 20;
-      
+
       const paging = {
         start: (page - 1) * limit,
         end: limit,
@@ -282,6 +282,42 @@ class FileController {
       return res
         .status(500)
         .send({ status: 500, message: "Internal error occurred" });
+    }
+  }
+
+  static async deleteVideoById(req, res) {
+    try {
+      const user = req.user;
+      const id = parseInt(req.query.id);
+      if (!id)
+        return res
+          .status(400)
+          .send({ message: "missing id query", status: 400 });
+
+      const data = await Service.deleteVideoByIdAsync({ id, user });
+      const status = data === true ? "successful" : "a failure";
+      return res.send({
+        message: `file delete action was ${status} `,
+        status: 200,
+      });
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send({ message: "Internal error occurred", status: 500 });
+    }
+  }
+
+  static async getUploadedVideos(req, res) {
+    try {
+      const user = req.user;
+      const data = await Service.getUploadedVideosAsync(user);
+      return res.send({ data, status: 200 });
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .send({ message: `Internal error occurred`, status: 500 });
     }
   }
 }

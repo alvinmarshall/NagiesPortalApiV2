@@ -152,6 +152,27 @@ class FileService {
       }
     });
   }
+
+  static deleteVideoByIdAsync({ id, user }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { isDeleted, path } = await FileModel.deleteVideoByIdAsync(
+          id,
+          user
+        );
+        console.log("state", isDeleted, path);
+        if (!isDeleted || !path) return resolve(isDeleted);
+        const _ = await findAndDeleteAsync(path);
+        resolve(isDeleted);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  static getUploadedVideosAsync(user) {
+    return FileModel.getUploadedVideosAsync(user);
+  }
 }
 
 module.exports = FileService;

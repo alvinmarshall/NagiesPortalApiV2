@@ -36,7 +36,7 @@ router.get(
       .not()
       .isEmpty()
       .trim()
-      .custom(value => {
+      .custom((value) => {
         if (!(value == "image" || value == "pdf")) {
           throw new Error("file format should be either an image or pdf ");
         }
@@ -47,7 +47,7 @@ router.get(
       .not()
       .isEmpty()
       .trim()
-      .custom(value => {
+      .custom((value) => {
         if (
           !(
             value == "assignment" ||
@@ -60,7 +60,7 @@ router.get(
           throw new Error("provide a valid file type");
         }
         return value;
-      })
+      }),
   ],
   Controller.get
 );
@@ -99,7 +99,7 @@ router.post(
           }
         }
         return value;
-      })
+      }),
   ],
   Controller.upload
 );
@@ -122,16 +122,12 @@ router.delete(
     // ───VALIDATE REQUEST PARAMS ─────────────────────────────────────────────
     //
 
-    param("id")
-      .not()
-      .isEmpty()
-      .trim()
-      .withMessage("provide an id"),
+    param("id").not().isEmpty().trim().withMessage("provide an id"),
     query("type")
       .not()
       .isEmpty()
       .trim()
-      .custom(value => {
+      .custom((value) => {
         if (
           !(value == "assignment" || value == "report" || value == "timetable")
         ) {
@@ -143,17 +139,13 @@ router.delete(
       .not()
       .isEmpty()
       .trim()
-      .custom(value => {
+      .custom((value) => {
         if (!(value == "image" || value == "pdf")) {
           throw new Error("file format should be either an image or pdf ");
         }
         return value;
       }),
-    query("path")
-      .not()
-      .isEmpty()
-      .trim()
-      .withMessage("missing file path")
+    query("path").not().isEmpty().trim().withMessage("missing file path"),
   ],
   Controller.deleteFile
 );
@@ -170,13 +162,7 @@ router.delete(
 
 router.get(
   "/download",
-  [
-    query("path")
-      .not()
-      .isEmpty()
-      .trim()
-      .withMessage("file path is missing")
-  ],
+  [query("path").not().isEmpty().trim().withMessage("file path is missing")],
   Controller.downloadWithPath
 );
 //#endregion
@@ -194,6 +180,18 @@ router.get(
   "/videos",
   passport.authenticate("jwt", { session: false }),
   Controller.getVideos
+);
+
+router.delete(
+  "/video/delete",
+  passport.authenticate("jwt", { session: false }),
+  Controller.deleteVideoById
+);
+
+router.get(
+  "/videos/owner",
+  passport.authenticate("jwt", { session: false }),
+  Controller.getUploadedVideos
 );
 //#endregion
 module.exports = router;

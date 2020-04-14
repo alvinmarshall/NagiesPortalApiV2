@@ -381,11 +381,69 @@ class FileModel {
   }
 
   static resolveDataDateAsync(data) {
-    return new Promise((resolve) => {
-      data.forEach((d) => {
-        d.date = dateFormat(d.date, DATE_TYPE.shortDate);
-      });
-      resolve(data);
+    const aPromise = (value) => {
+      return Promise.resolve(value);
+    };
+    const setNewDate = async (value) => {
+      const doc = value;
+      const newDate = dateFormat(doc.date, DATE_TYPE.shortDate);
+      doc.date = newDate;
+      return aPromise(doc);
+    };
+
+    const getData = async (result) => {
+      return Promise.all(result.map((doc) => setNewDate(doc)));
+    };
+
+    return getData(data);
+  }
+
+  static deleteVideoByIdAsync(id, user) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const path = await this.getVideoPathById(id);
+        const sql = `DELETE FROM ${TABLE_VIDEO} WHERE id = ? AND Sender_ID = ?`;
+        const result = await db
+          .query(sql, [id, user.ref])
+          .then((data) => data.affectedRows > 0);
+        resolve({ isDeleted: result, path });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  static getVideoPathById(id) {
+    const sql = `SELECT File AS path FROM ${TABLE_VIDEO} WHERE id = ? LIMIT 1 `;
+    return db.query(sql, [id]).then((data) => {
+      if (data.length > 0) return data[0].path;
+      return null;
+    });
+  }
+
+  static getUploadedVideosAsync(user) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = `
+          SELECT v.id,
+            v.Recipient AS recipient,
+            v.Sender_ID AS refNo,
+            t.Teachers_Name AS sender,
+            v.File AS fileUrl,
+            v.Created_At AS date
+          FROM 
+            ${TABLE_VIDEO} v
+          INNER JOIN ${TABLE_TEACHER} t
+          ON t.Teachers_No = v.Sender_ID 
+          WHERE
+            v.Sender_ID = ?
+          ORDER BY id DESC
+        `;
+        const result = await db.query(sql, [user.ref]);
+        const data = await this.resolveDataDateAsync(result);
+        resolve(data);
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 }
