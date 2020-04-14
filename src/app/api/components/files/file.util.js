@@ -58,7 +58,7 @@ module.exports = {
   // ──────────────────────────────────────────────────────────────────────────────────
   //
 
-  fileFormatType: mimetype => {
+  fileFormatType: (mimetype) => {
     switch (mimetype) {
       case "image/jpeg":
       case "image/png":
@@ -79,22 +79,24 @@ module.exports = {
   preprareToUploadFile: ({ fileTable, file }) => {
     return new Promise((resolve, reject) => {
       try {
-        let fileToUpload = file,
-          publicPath = `public/${fileTable.location}`,
-          filePath = `${publicPath}/${fileToUpload.name}`;
-        fileToUpload.mv(filePath, err => {
+        const fileToUpload = file;
+        const publicPath = `public/${fileTable.location}`;
+        const extension = getFileExtension(fileToUpload.name);
+        const genFileName = `media_${new Date().getTime()}.${extension}`;
+        const filePath = `${publicPath}/${genFileName}`;
+        fileToUpload.mv(filePath, (err) => {
           if (err) {
             console.error(err);
             return reject(err);
           }
-          fs.chmod(filePath, 0707, err => {
+          fs.chmod(filePath, 0707, (err) => {
             if (err) {
               console.error(err);
               return reject(err);
             }
           });
 
-          let destination = `${fileTable.location}/${fileToUpload.name}`;
+          let destination = `${fileTable.location}/${genFileName}`;
           resolve({ fileTable, destination });
         });
       } catch (err) {
@@ -109,17 +111,17 @@ module.exports = {
   // ────────────────────────────────────────────────────────────────────────
   //
 
-  findAndDeleteAsync: path => {
+  findAndDeleteAsync: (path) => {
     return new Promise(async (resolve, reject) => {
       try {
         let publicPath = `public/${path}`;
-        fs.stat(publicPath, err => {
+        fs.stat(publicPath, (err) => {
           if (err) {
             console.error(err);
             return resolve(false);
           }
 
-          fs.unlink(publicPath, err => {
+          fs.unlink(publicPath, (err) => {
             if (err) {
               console.error(err);
               return resolve(false);
@@ -136,22 +138,24 @@ module.exports = {
   preprareToUploadVideoAsync: ({ info, file }) => {
     return new Promise((resolve, reject) => {
       try {
-        let fileToUpload = file,
-          publicPath = `public/${info.location}`,
-          filePath = `${publicPath}/${fileToUpload.name}`;
-        fileToUpload.mv(filePath, err => {
+        const fileToUpload = file;
+        const publicPath = `public/${info.location}`;
+        const extension = getFileExtension(fileToUpload.name);
+        const genFileName = `media_${new Date().getTime()}.${extension}`;
+        const filePath = `${publicPath}/${genFileName}`;
+        fileToUpload.mv(filePath, (err) => {
           if (err) {
             console.error(err);
             return reject(err);
           }
 
-          fs.chmod(filePath, 0707, err => {
+          fs.chmod(filePath, 0707, (err) => {
             if (err) {
               return reject(err);
             }
           });
 
-          let path = `${info.location}/${fileToUpload.name}`;
+          let path = `${info.location}/${genFileName}`;
           path.trim();
           resolve({ path, info });
         });
@@ -159,5 +163,10 @@ module.exports = {
         reject(error);
       }
     });
-  }
+  },
+};
+
+const getFileExtension = (filename) => {
+  const lastItem = filename.split(".").length - 1;
+  return filename.split(".")[lastItem];
 };
