@@ -19,8 +19,14 @@ class MessageController {
   static async getMessage(req, res) {
     try {
       const { from } = req.query;
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      const paging = {
+        start: (page - 1) * limit,
+        end: limit,
+      };
       const user = req.user;
-      const data = await Service.messageAsync({ user, from });
+      const data = await Service.messageAsync({ user, from, paging });
       return res.send(data);
     } catch (err) {
       console.error(err);
@@ -111,7 +117,13 @@ class MessageController {
   static async getSentMessage(req, res) {
     try {
       let user = req.user;
-      const data = await Service.sentMessageAsync({ user });
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      const paging = {
+        start: (page - 1) * limit,
+        end: limit,
+      };
+      const data = await Service.sentMessageAsync({ user, paging });
       return res.send(data);
     } catch (err) {
       console.error(err);

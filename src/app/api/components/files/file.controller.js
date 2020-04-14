@@ -27,25 +27,32 @@ class FileController {
         method: req.method,
         query: req.query,
         params: req.params,
-        body: req.body
+        body: req.body,
       });
       if (!errors.isEmpty()) {
         logger.log("error", "file.controller.get", {
-          res: { validationError: errors }
+          res: { validationError: errors },
         });
         return res.status(400).send({
           message: "missing query params",
           status: 400,
-          errors: errors
+          errors: errors,
         });
       }
 
-      let type = req.query.type,
-        format = req.query.format;
+      const { type, format } = req.query;
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      
+      const paging = {
+        start: (page - 1) * limit,
+        end: limit,
+      };
 
       const data = await Service.getFileTypeAsync(req.user, {
         type: type,
-        format: format
+        format: format,
+        paging,
       });
 
       return res.send(data);
@@ -66,18 +73,18 @@ class FileController {
         method: req.method,
         query: req.query,
         params: req.params,
-        body: req.body
+        body: req.body,
       });
       if (!errors.isEmpty()) {
         logger.log("error", "file.controller.upload", {
-          res: { status: 400, validationError: errors }
+          res: { status: 400, validationError: errors },
         });
         return res.status(400).send(errors);
       }
 
       if (isEmpty(req.files)) {
         logger.log("error", "file.controller.upload", {
-          res: { message: "No file selected", status: 400 }
+          res: { message: "No file selected", status: 400 },
         });
         return res
           .status(400)
@@ -90,7 +97,7 @@ class FileController {
       if (type === "report") {
         reportInfo = {
           studentNo: req.body.studentNo,
-          studentName: req.body.studentName
+          studentName: req.body.studentName,
         };
       }
 
@@ -100,13 +107,13 @@ class FileController {
             res: {
               message:
                 "ensure that form name set to 'file' and choose a file to upload",
-              status: 400
-            }
+              status: 400,
+            },
           });
           return res.status(400).send({
             message:
               "ensure that form name set to 'file' and choose a file to upload",
-            status: 400
+            status: 400,
           });
         }
       }
@@ -114,18 +121,18 @@ class FileController {
       const result = await Service.uploadFileTypeAsync(req.user, {
         type,
         file,
-        reportInfo
+        reportInfo,
       });
 
       if (!result)
         return res.status(400).send({
           message: "upload failed",
-          status: 400
+          status: 400,
         });
 
       return res.send({
         message: "file path uploaded successful",
-        status: 200
+        status: 200,
       });
     } catch (err) {
       console.log(err);
@@ -146,18 +153,18 @@ class FileController {
         method: req.method,
         query: req.query,
         params: req.params,
-        body: req.body
+        body: req.body,
       });
       if (!errors.isEmpty()) {
         {
           logger.log("error", "file.controller.deleteFile", {
             status: 400,
-            validationError: errors
+            validationError: errors,
           });
           return res.status(400).send({
             message: "missing query params",
             status: 400,
-            errors: errors
+            errors: errors,
           });
         }
       }
@@ -165,11 +172,11 @@ class FileController {
       if (req.user.role != "teacher") {
         logger.log("error", "file.controller.deleteFile", {
           accessError: "You don't have access to this route",
-          status: 403
+          status: 403,
         });
         return res.send(403).send({
           message: "You don't have access to this route",
-          status: 403
+          status: 403,
         });
       }
 
@@ -180,7 +187,7 @@ class FileController {
         id,
         path,
         type,
-        format
+        format,
       });
       if (!data) return res.send({ message: "File not found", status: 200 });
 
@@ -188,7 +195,7 @@ class FileController {
     } catch (err) {
       logger.log("error", "file.controller.deleteFile", {
         status: 500,
-        error: err
+        error: err,
       });
 
       return res
@@ -207,24 +214,24 @@ class FileController {
       method: req.method,
       query: req.query,
       params: req.params,
-      body: req.body
+      body: req.body,
     });
     if (!errors.isEmpty()) {
       logger.log("error", "file.controller.downloadWithPath", {
         status: 400,
-        validationError: errors
+        validationError: errors,
       });
       return res.status(400).send(errors);
     }
     let fileUrl = req.query.path;
     let filePath = `public/${fileUrl}`;
     let filename = path.basename(filePath);
-    res.download(filePath, filename, err => {
+    res.download(filePath, filename, (err) => {
       if (err) {
         logger.log("error", "file.controller.downloadWithPath", {
           status: 500,
           file: "No file found",
-          error: err
+          error: err,
         });
         res.status(500).send({ message: "No file found", status: 500 });
         return;
@@ -254,7 +261,7 @@ class FileController {
         user,
         recipient,
         file,
-        info
+        info,
       });
       return res.send({ status: 200, data });
     } catch (err) {

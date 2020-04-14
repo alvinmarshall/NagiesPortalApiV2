@@ -22,10 +22,10 @@ const Firebase = require("../notification/firebase.service");
 const { USER_ROLE } = require("../../common/constants");
 
 class MessageService {
-  static messageAsync({ user, from }) {
+  static messageAsync({ user, from, paging }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const data = await Message.getMessagesAsync({ user, from });
+        const data = await Message.getMessagesAsync({ user, from, paging });
 
         if (from == "complaint") {
           const msg = complaintDataFormat(data);
@@ -67,7 +67,7 @@ class MessageService {
         data.level = user.level;
         const payload = firebaseTopicPayload({ title, body, data });
         const _ = await Firebase.sendTopicMessageAsync({ topic, payload });
-        console.log(`firebase response`,_);
+        console.log(`firebase response`, _);
         resolve(payload);
       } catch (err) {
         reject(err);
@@ -79,11 +79,11 @@ class MessageService {
     return Message.deleteMessageAsync({ type, id });
   }
 
-  static sentMessageAsync({ user }) {
+  static sentMessageAsync({ user, paging }) {
     return new Promise(async (resolve, reject) => {
       try {
         const from = user.role === USER_ROLE.Parent ? "complaint" : "message";
-        const data = await Message.getSentMessageAsync({ user, from });
+        const data = await Message.getSentMessageAsync({ user, from, paging });
 
         if (from === "complaint") {
           const msg = complaintDataFormat(data);

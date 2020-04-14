@@ -24,13 +24,13 @@ const {
   TABLE_VIDEO,
   DATE_TYPE,
   FIREBASE_TOPIC,
-  getCommonDateStyle
+  getCommonDateStyle,
 } = require("../../common/constants");
 const {
   firebaseTopicPayload,
   circularFormat,
   billDataFormat,
-  fileDataFormat
+  fileDataFormat,
 } = require("../../common/utils/data.format");
 class FileModel {
   //
@@ -39,26 +39,26 @@ class FileModel {
   // ────────────────────────────────────────────────────────────────────────────────────────────────────────────
   //
 
-  static getFileAsync({ from, fileTable, column }) {
+  static getFileAsync({ from, fileTable, column, paging }) {
     const { table } = fileTable;
 
     switch (table) {
       case TABLE_CIRCULAR:
-        return this.getCircularAsync({ from });
+        return this.getCircularAsync({ from, paging });
 
       case TABLE_BILLING:
-        return this.getBillAsync({ from });
+        return this.getBillAsync({ from, paging });
 
       case TABLE_ASSIGNMENT_IMAGE:
       case TABLE_ASSIGNMENT_PDF:
-        return this.getAssignmentAsync({ column, from });
+        return this.getAssignmentAsync({ column, from, paging });
 
       case TABLE_REPORT_PDF:
       case TABLE_REPORT_IMAGE:
-        return this.getReportAsync({ column, from });
+        return this.getReportAsync({ column, from, paging });
 
       case TABLE_TIME_TABLE:
-        return this.getTimeTableAsync({ column, from });
+        return this.getTimeTableAsync({ column, from, paging });
 
       default:
         break;
@@ -66,14 +66,15 @@ class FileModel {
   }
 
   //#region Circular
-  static getCircularAsync({ from }) {
+  static getCircularAsync({ from, paging }) {
+    const { start, end } = paging;
     return new Promise(async (resolve, reject) => {
       try {
         const sql = `
         SELECT id,CID,FileName,CID_Date 
         FROM ${TABLE_CIRCULAR} 
-        WHERE Faculty_Name = ? ORDER BY CID_Date DESC `;
-        const result = await db.query(sql, [from]);
+        WHERE Faculty_Name = ? ORDER BY CID_Date DESC LIMIT ?,? `;
+        const result = await db.query(sql, [from, start, end]);
         const data = circularFormat(result);
         resolve({ data });
       } catch (err) {
@@ -84,15 +85,16 @@ class FileModel {
   //#endregion
 
   //#region Bill
-  static getBillAsync({ from }) {
+  static getBillAsync({ from, paging }) {
+    const { start, end } = paging;
     return new Promise(async (resolve, reject) => {
       try {
         const sql = `
           SELECT id, Students_No, Students_Name,
                 Uploader, Bill_File, Report_Date 
          FROM ${TABLE_BILLING} 
-         WHERE Students_No = ? ORDER BY id DESC`;
-        const result = await db.query(sql, [from]);
+         WHERE Students_No = ? ORDER BY id DESC LIMIT ?,?`;
+        const result = await db.query(sql, [from, start, end]);
         const data = billDataFormat(result);
         resolve({ data });
       } catch (err) {
@@ -103,15 +105,16 @@ class FileModel {
   //#endregion
 
   //#region Assignment
-  static getAssignmentAsync({ column, from }) {
+  static getAssignmentAsync({ column, from, paging }) {
+    const { start, end } = paging;
     return new Promise(async (resolve, reject) => {
       try {
         const sql = `
         SELECT id,Students_No,Students_Name,Teachers_Email, 
         Report_File, Report_Date 
         FROM ${TABLE_ASSIGNMENT_IMAGE} 
-        WHERE ${column} = ? ORDER BY id DESC`;
-        const result = await db.query(sql, [from]);
+        WHERE ${column} = ? ORDER BY id DESC LIMIT ?,?`;
+        const result = await db.query(sql, [from, start, end]);
         const data = fileDataFormat("image", result);
         resolve({ data });
       } catch (err) {
@@ -122,15 +125,16 @@ class FileModel {
   //#endregion
 
   //#region Report
-  static getReportAsync({ column, from }) {
+  static getReportAsync({ column, from, paging }) {
+    const { start, end } = paging;
     return new Promise(async (resolve, reject) => {
       try {
         const sql = `
         SELECT id,Students_No,Students_Name,
             Teachers_Email, Report_File, Report_Date 
         FROM ${TABLE_REPORT_IMAGE} 
-        WHERE ${column} = ? ORDER BY id DESC`;
-        const result = await db.query(sql, [from]);
+        WHERE ${column} = ? ORDER BY id DESC LIMIT ?,?`;
+        const result = await db.query(sql, [from, start, end]);
         const data = fileDataFormat("image", result);
         resolve({ data });
       } catch (err) {
@@ -141,15 +145,16 @@ class FileModel {
   //#endregion
 
   //#region TimeTable
-  static getTimeTableAsync({ column, from }) {
+  static getTimeTableAsync({ column, from, paging }) {
+    const { start, end } = paging;
     return new Promise(async (resolve, reject) => {
       try {
         const sql = `
         SELECT id,Students_No,Students_Name,Teachers_Email, 
               Report_File, Report_Date 
         FROM ${TABLE_TIME_TABLE} 
-        WHERE ${column} = ? ORDER BY id DESC`;
-        const result = await db.query(sql, [from]);
+        WHERE ${column} = ? ORDER BY id DESC LIMIT ?,?`;
+        const result = await db.query(sql, [from, start, end]);
         const data = fileDataFormat("image", result);
         resolve({ data });
       } catch (err) {
@@ -196,7 +201,7 @@ class FileModel {
           level,
           username,
           username,
-          destination
+          destination,
         ]);
 
         const date = getCommonDateStyle();
@@ -209,8 +214,8 @@ class FileModel {
           body: `${name} has uploaded an assignment for ${level} class.`,
           data: {
             type: `assignment_${fileTable.format}`,
-            level
-          }
+            level,
+          },
         };
 
         if (affectedRows === 0) return resolve(false);
@@ -243,7 +248,7 @@ class FileModel {
           studentNo,
           studentName,
           username,
-          destination
+          destination,
         ]);
 
         const { affectedRows } = result;
@@ -255,8 +260,8 @@ class FileModel {
           body: `The end of term report file for ${studentName}`,
           data: {
             type: `report_${fileTable.format}`,
-            level
-          }
+            level,
+          },
         };
 
         const topic = FIREBASE_TOPIC.Parent;
@@ -334,8 +339,8 @@ class FileModel {
           body: `Hey ${user.level} students, please check out this video`,
           data: {
             type: "video",
-            level: user.level
-          }
+            level: user.level,
+          },
         };
         if (affectedRows === 0) {
           return resolve(false);
@@ -376,8 +381,8 @@ class FileModel {
   }
 
   static resolveDataDateAsync(data) {
-    return new Promise(resolve => {
-      data.forEach(d => {
+    return new Promise((resolve) => {
+      data.forEach((d) => {
         d.date = dateFormat(d.date, DATE_TYPE.shortDate);
       });
       resolve(data);

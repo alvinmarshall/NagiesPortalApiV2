@@ -21,16 +21,17 @@ class MessageModel {
   // ─── GET TYPE MESSAGE ───────────────────────────────────────────────────────────
   //
 
-  static getMessagesAsync({ user, from }) {
+  static getMessagesAsync({ user, from,paging }) {
     switch (from) {
       case "complaint":
-        return this.getComplainAsync(user);
+        return this.getComplainAsync(user,paging);
       default:
-        return this.getMessageAsync(user);
+        return this.getMessageAsync(user,paging);
     }
   }
 
-  static getComplainAsync(user) {
+  static getComplainAsync(user,paging) {
+    const {start,end} = paging;
     const sql = `
     SELECT  
         id, 
@@ -43,11 +44,12 @@ class MessageModel {
         Message,
         Message_Date 
     FROM ${TABLE_COMPLAINTS}
-    where Level_Name = ? ORDER BY Message_Date DESC`;
-    return db.query(sql, [user.level, user.ref]);
+    where Level_Name = ? ORDER BY Message_Date DESC LIMIT ?,? `;
+    return db.query(sql, [user.level,start,end]);
   }
 
-  static getMessageAsync(user) {
+  static getMessageAsync(user,paging) {
+    const {start,end} = paging;
     const sql = `
     SELECT 
         id, 
@@ -57,9 +59,9 @@ class MessageModel {
         M_Read
     FROM ${TABLE_MESSAGE} 
     WHERE Message_Level = ? OR Message_Level = ? 
-    ORDER BY M_Date DESC`;
+    ORDER BY M_Date DESC LIMIT ?,?`;
 
-    return db.query(sql, [user.level, user.ref]);
+    return db.query(sql, [user.level, user.ref,start,end]);
   }
 
   //
@@ -204,16 +206,17 @@ class MessageModel {
   // ─── GET USER SEMT MESSAGE ──────────────────────────────────────────────────────
   //
 
-  static getSentMessageAsync({ user, from }) {
+  static getSentMessageAsync({ user, from, paging }) {
     switch (from) {
       case "complaint":
-        return this.getSentComplaintsAsync(user);
+        return this.getSentComplaintsAsync(user, paging);
       default:
-        return this.getSentMessagesAsync(user);
+        return this.getSentMessagesAsync(user, paging);
     }
   }
 
-  static getSentMessagesAsync(user) {
+  static getSentMessagesAsync(user, paging) {
+    const { start, end } = paging;
     const sql = `
       SELECT 
         id, 
@@ -223,11 +226,12 @@ class MessageModel {
         Message_Level, 
         M_Read
       FROM ${TABLE_MESSAGE} 
-      WHERE Message_BY = ? ORDER BY M_Date DESC`;
-    return db.query(sql, [user.username]);
+      WHERE Message_BY = ? ORDER BY M_Date DESC LIMIT ?,?`;
+    return db.query(sql, [user.username, start, end]);
   }
 
-  static getSentComplaintsAsync(user) {
+  static getSentComplaintsAsync(user, paging) {
+    const { start, end } = paging;
     const sql = `
       SELECT  
         id, 
@@ -240,8 +244,8 @@ class MessageModel {
         Message,
         Message_Date 
       FROM ${TABLE_COMPLAINTS}
-      where Students_No = ? ORDER BY Message_Date DESC`;
-    return db.query(sql, [user.ref]);
+      where Students_No = ? ORDER BY Message_Date DESC LIMIT ?,?`;
+    return db.query(sql, [user.ref, start, end]);
   }
 }
 

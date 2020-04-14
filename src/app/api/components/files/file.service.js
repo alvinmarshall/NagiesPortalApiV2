@@ -15,7 +15,7 @@ const {
   preprareToUploadFile,
   fileFormatType,
   findAndDeleteAsync,
-  preprareToUploadVideoAsync
+  preprareToUploadVideoAsync,
 } = require("./file.util");
 const FileModel = require("./file.model.js");
 const {
@@ -23,7 +23,7 @@ const {
   billDataFormat,
   circularFormat,
   fileDataFormat,
-  uploadedDataFormat
+  uploadedDataFormat,
 } = require("../../common/utils/data.format");
 const FirebaseService = require("../notification/firebase.service");
 const { FIREBASE_TOPIC } = require("../../common/constants");
@@ -34,7 +34,7 @@ class FileService {
   // ─── GET SPECIFIED FILES ────────────────────────────────────────────────────────
   //
 
-  static getFileTypeAsync(user, { type, format }, cb = (err, files) => {}) {
+  static getFileTypeAsync(user, { type, format, paging }) {
     let fetchFrom = user.role == USER_ROLE.Parent ? user.level : user.username;
     let column =
       user.role == USER_ROLE.Parent ? "Students_No" : "Teachers_Email";
@@ -58,7 +58,8 @@ class FileService {
     return FileModel.getFileAsync({
       from: fetchFrom,
       fileTable: fileTable,
-      column
+      column,
+      paging,
     });
   }
 
@@ -84,7 +85,7 @@ class FileService {
           const { topic, payload } = result;
           await FirebaseService.sendTopicMessageAsync({
             topic,
-            payload
+            payload,
           });
         }
         resolve(true);
@@ -104,7 +105,7 @@ class FileService {
         const fileTable = getFileTable(type, format);
         const result = await FileModel.deleteFilePathAsync(id, {
           user,
-          fileTable
+          fileTable,
         });
         await findAndDeleteAsync(path);
         resolve(result);
@@ -122,7 +123,7 @@ class FileService {
         const result = await FileModel.saveVideoFilePathAsync({
           user,
           recipient,
-          data: _data
+          data: _data,
         });
 
         const { title, body, data } = result.notification;
@@ -130,7 +131,7 @@ class FileService {
         const payload = firebaseTopicPayload({ title, body, data });
         const fcm = await FirebaseService.sendTopicMessageAsync({
           topic,
-          payload
+          payload,
         });
 
         resolve(fcm);
