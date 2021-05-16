@@ -1,0 +1,36 @@
+{
+  "name": "Server Testing",
+  "version": "",
+  "about": {
+    "company": "",
+    "aboutUrl": "",
+    "contactUrl": ""
+  },
+  "ASSET_DIR": "public",
+  "homeUrl":"http://localhost:3000/api/v1",
+  "dbConfig": {
+    "host": "localhost",
+    "database": "",
+    "user": "",
+    "password": ""
+  },
+  "port": 3000,
+  "jwtConfig": {
+    "secret": ""
+  },
+  "serviceKey": {
+    "type": "",
+    "project_id": "",
+    "private_key_id": "",
+    "private_key": "",
+    "client_email": "",
+    "client_id": "",
+    "auth_uri": "",
+    "token_uri": "",
+    "auth_provider_x509_cert_url": "",
+    "client_x509_cert_url": ""
+  },
+  "databaseUrl": {
+    "url": ""
+  }
+}
