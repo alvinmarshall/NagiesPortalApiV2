@@ -76,7 +76,7 @@ module.exports = {
   // ──────────────────────────────────────────────────────────────────────────────
   //
 
-  preprareToUploadFile: ({ fileTable, file }) => {
+  prepareToUploadFile: ({ fileTable, file }) => {
     return new Promise((resolve, reject) => {
       try {
         const fileToUpload = file;

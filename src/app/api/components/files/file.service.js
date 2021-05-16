@@ -12,7 +12,7 @@
 const { USER_ROLE } = require("../../common/constants");
 const {
   getFileTable,
-  preprareToUploadFile,
+  prepareToUploadFile,
   fileFormatType,
   findAndDeleteAsync,
   preprareToUploadVideoAsync,
@@ -35,23 +35,27 @@ class FileService {
   //
 
   static getFileTypeAsync(user, { type, format, paging }) {
-    let fetchFrom = user.role == USER_ROLE.Parent ? user.level : user.username;
+    let fetchFrom = user.role === USER_ROLE.Parent ? user.level : user.username;
     let column =
-      user.role == USER_ROLE.Parent ? "Students_No" : "Teachers_Email";
+      user.role === USER_ROLE.Parent ? "Students_No" : "Teachers_Email";
     const fileTable = getFileTable(type, format);
-    if (type == "report") {
+    if (type === "report") {
       fetchFrom = user.ref;
     }
 
-    if (type == "report" && user.role == USER_ROLE.Teacher) {
+    if (type === "report" && user.role === USER_ROLE.Teacher) {
       fetchFrom = user.username;
     }
 
-    if (type == "circular") {
+    if (type === "circular") {
       fetchFrom = user.faculty;
     }
 
-    if (type == "bill") {
+    if (type === "bill") {
+      fetchFrom = user.ref;
+    }
+    
+    if (type === "receipt") {
       fetchFrom = user.ref;
     }
 
@@ -73,7 +77,7 @@ class FileService {
         let format = fileFormatType(file.mimetype);
         let fileTable = getFileTable(type, format);
 
-        const uploadInfo = await preprareToUploadFile({ fileTable, file });
+        const uploadInfo = await prepareToUploadFile({ fileTable, file });
         const result = await FileModel.saveFilePathAsync(
           user,
           uploadInfo,
@@ -151,27 +155,6 @@ class FileService {
         reject(err);
       }
     });
-  }
-
-  static deleteVideoByIdAsync({ id, user }) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { isDeleted, path } = await FileModel.deleteVideoByIdAsync(
-          id,
-          user
-        );
-        console.log("state", isDeleted, path);
-        if (!isDeleted || !path) return resolve(isDeleted);
-        const _ = await findAndDeleteAsync(path);
-        resolve(isDeleted);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  }
-
-  static getUploadedVideosAsync(user) {
-    return FileModel.getUploadedVideosAsync(user);
   }
 }
 

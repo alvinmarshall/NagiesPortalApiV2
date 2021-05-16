@@ -202,6 +202,25 @@ module.exports = {
   // ─── BILLING FORMAT ─────────────────────────────────────────────────────────────
   //
 
+  receiptDataFormat: (data) => {
+    let result = [];
+    forEach(data, (_, key) => {
+      result.push({
+        id: data[key].id,
+        studentNo: data[key].Ref_No,
+        studentName: data[key].Name,
+        level: data[key].Level,
+        fileUrl: data[key].Image,
+        date: dateFormat(data[key].Date, DATE_TYPE.simpleDate),
+      });
+    });
+    return result;
+  },
+
+  //
+  // ─── BILLING FORMAT ─────────────────────────────────────────────────────────────
+  //
+
   billDataFormat: (data) => {
     let result = [];
     forEach(data, (_, key) => {
