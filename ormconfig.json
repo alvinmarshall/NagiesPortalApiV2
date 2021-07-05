@@ -1,0 +1,26 @@
+[
+  {
+    "name": "default",
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "mysql",
+    "password": "mysql",
+    "database": "nagies",
+    "synchronize": false,
+    "entities": ["src/entities/*.entity.ts"],
+    "migrations": [
+      "src/migration/**/*.ts"
+    ],
+    "migrationsRun": true,
+    "migrationsTableName": "custom_migration_table",
+    "subscribers": [
+      "src/subscriber/**/*.ts"
+    ],
+    "cli": {
+      "entitiesDir": "src/entities",
+      "migrationsDir": "src/migration",
+      "subscribersDir": "src/subscriber"
+    }
+  }
+]
