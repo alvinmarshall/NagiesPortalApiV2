@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  nagies-db:
+    container_name: nagies_mysql
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+    volumes:
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+
+volumes:
+  mysql-dump:
