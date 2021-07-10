@@ -9,6 +9,7 @@ import { Transactional } from 'typeorm-transactional-cls-hooked';
 import { MessageRepository } from './message.repository';
 import { NotificationService } from '../notification/notification.service';
 import { DataPayload, TopicPayload } from '../notification/dto/firebase.dto';
+import { FirebaseTopic } from '../../lib/common';
 
 @Injectable()
 export class MessagesService {
@@ -42,7 +43,7 @@ export class MessagesService {
       body: body.message,
       image: '',
       level: user.level,
-      topic: 'teachers',
+      topic: FirebaseTopic.TEACHER,
     };
     const topicPayload = new TopicPayload(dataPayload);
     return this.notificationService.sendTopicMessage(topicPayload.getPayload());
@@ -70,7 +71,7 @@ export class MessagesService {
       body: body.message,
       image: '',
       level: user.level,
-      topic: 'parent',
+      topic: FirebaseTopic.PARENT,
     };
     const topicPayload = new TopicPayload(dataPayload);
     return this.notificationService.sendTopicMessage(topicPayload.getPayload());
