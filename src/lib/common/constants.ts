@@ -15,6 +15,32 @@ export enum MessageStatus {
   DELETED = 'deleted'
 }
 
+export enum FileType {
+  CIRCULAR = 'circular',
+  BILL = 'bill',
+  RECEIPT = 'receipt',
+  ASSIGNMENT = 'assignment',
+  REPORT = 'assignment',
+  VIDEO = 'video'
+}
+
+export enum UploadDirectory {
+  ASSIGNMENT = 'students/assignment',
+  REPORT = 'students/Reports',
+  CIRCULAR = 'students/Circular',
+  VIDEO = 'students/Video',
+  TIMETABLE = 'students/Timetable',
+  BILL = 'students/Bill',
+  RECEIPT = 'students/Receipt',
+  TEACHER = 'teacher/uploads',
+}
+
+export enum FirebaseTopic {
+  PARENT = 'parent',
+  TEACHER = 'teachers',
+  GLOBAL = 'global'
+}
+
 export enum ReplyStatus {
   NOT_REPLIED = 'notreplied',
   REPLIED = 'replied'
