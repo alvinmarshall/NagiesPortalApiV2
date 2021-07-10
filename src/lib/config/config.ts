@@ -28,5 +28,16 @@ export const config = () => ({
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE,
   },
+
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
+  },
+
+  env: process.env.NODE_ENV || 'development',
+
+
   port: parseInt(process.env.PORT, 10) || 8888,
 });

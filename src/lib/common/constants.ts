@@ -25,6 +25,11 @@ export enum PaymentType {
   CHEQUE = 'cheque'
 }
 
+export enum MessageType {
+  COMPLAINT = 'complaint',
+  MESSAGE = 'message'
+}
+
 export enum AccountStatus {
   ACTIVE = 'active',
   IN_ACTIVE = 'inactive'
@@ -50,6 +55,11 @@ export enum AttendanceStatus {
 export enum AttendanceType {
   TEACHER = 'teacher',
   STUDENT = 'student',
+}
+
+export enum RecipientType {
+  TEACHER = 'teacher',
+  PARENT = 'parent',
 }
 
 
