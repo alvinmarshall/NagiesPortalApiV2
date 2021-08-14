@@ -1,5 +1,4 @@
 import { AuthType } from '../../lib/common';
-import { Expose } from 'class-transformer';
 
 export interface UserDetails {
   id: number;

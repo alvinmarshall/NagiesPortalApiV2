@@ -1,16 +1,5 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity, JoinColumn,
-  JoinTable,
-  ManyToMany, ManyToOne, OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { AttendanceStatus, AttendanceType } from '../lib/common';
-import { TeacherEntity } from './Teacher.entity';
-import { StudentEntity } from './Student.entity';
-import { LevelEntity } from './Level.entity';
 
 @Entity({ name: 'attendance', schema: 'nagies' })
 export class AttendanceEntity {

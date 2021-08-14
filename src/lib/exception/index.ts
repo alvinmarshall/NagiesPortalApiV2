@@ -5,4 +5,5 @@ export * from './token-exception';
 export * from './user-exist.exception';
 export * from './exception-payload';
 export * from './filter';
+export * from './unsupported-file-type.exception';
 

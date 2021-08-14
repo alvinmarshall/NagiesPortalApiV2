@@ -21,3 +21,4 @@ export * from './Assignment.entity';
 export * from './Complaints.entity';
 export * from './AssignmentImage.entity';
 export * from './Attendance.entity';
+export * from './UploadHistory.entity';

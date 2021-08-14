@@ -3,13 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { TokenRepository } from './token.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { StudentEntity, TeacherEntity, TokenEntity } from '../../entities';
+import { TokenEntity } from '../../entities';
 import { JWTConfig } from '../../lib';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
 import { TokenException } from '../../lib/exception';
 import { ErrorCode } from '../../lib/common/error-code';
 import { TokenExpiredError } from 'jsonwebtoken';
-import { UserDetails } from './interface';
 import { AuthType } from '../../lib/common';
 
 export interface AccessTokenPayload {
