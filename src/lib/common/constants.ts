@@ -20,7 +20,7 @@ export enum FileType {
   BILL = 'bill',
   RECEIPT = 'receipt',
   ASSIGNMENT = 'assignment',
-  REPORT = 'assignment',
+  REPORT = 'report',
   VIDEO = 'video'
 }
 

@@ -4,24 +4,24 @@ import { FilesController } from './files.controller';
 import { FileProviderFactory } from './file-provider.factory';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AssignmentJpgRepository, AssignmentPdfRepository } from './assignment';
+import { AssignmentRepository } from './assignment';
 import { VideoRepository } from './video';
 import { ReceiptRepository } from './receipt';
-import { ReportJpgRepository, ReportPdfRepository } from './report';
+import { ReportRepository } from './report';
 import { CircularRepository } from './circular';
 import { BillRepository } from './bill';
+import { FileHistoryRepository } from './file-history.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      AssignmentJpgRepository,
-      AssignmentPdfRepository,
+      AssignmentRepository,
       VideoRepository,
       ReceiptRepository,
-      ReportJpgRepository,
-      ReportPdfRepository,
+      ReportRepository,
       CircularRepository,
       BillRepository,
+      FileHistoryRepository,
     ]),
     AuthModule,
   ],

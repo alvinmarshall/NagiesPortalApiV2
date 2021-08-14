@@ -1,11 +1,12 @@
-import { FileType } from '../../lib/common';
-import { FileBill } from './bill/file.bill';
-import { FileReceipt } from './receipt/file.receipt';
-import { FileReport } from './report/file.report';
+import { FileSaveDto, FileType } from '../../lib';
+import { FileBill } from './bill';
+import { FileReceipt } from './receipt';
+import { FileReport } from './report';
 import { Injectable } from '@nestjs/common';
-import { FileAssignment } from './assignment/file.assignment';
-import { FileCircular } from './circular/file.circular';
-import { FileVideo } from './video/file.video';
+import { FileAssignment } from './assignment';
+import { FileCircular } from './circular';
+import { FileVideo } from './video';
+import { UploadFile } from './file.interface';
 
 @Injectable()
 export class FileProviderFactory {
@@ -29,8 +30,8 @@ export class FileProviderFactory {
     };
   }
 
-  async uploadFile(fileType: FileType) {
-    return this.actions[fileType]().uploadFile();
+  async uploadFile(fileType: FileType, file: FileSaveDto): Promise<UploadFile> {
+    return this.actions[fileType]().uploadFile(file);
   }
 
   async downloadFile(fileType: FileType) {

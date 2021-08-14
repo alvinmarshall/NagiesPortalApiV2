@@ -1,20 +1,20 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity("report", { schema: "nagies" })
 export class ReportEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column("varchar", { name: "Students_No", length: 11 })
+  @Column('varchar', { name: 'Students_No' })
   studentsNo: string;
 
-  @Column("varchar", { name: "Students_Name", length: 70 })
+  @Column('varchar', { name: 'Students_Name' })
   studentsName: string;
 
-  @Column("varchar", { name: "Teachers_Email", length: 70 })
+  @Column('varchar', { name: 'Teachers_Email' })
   teachersEmail: string;
 
-  @Column("varchar", { name: "Report_File", length: 50 })
+  @Column('varchar', { name: 'Report_File' })
   reportFile: string;
 
   @Column("datetime", {

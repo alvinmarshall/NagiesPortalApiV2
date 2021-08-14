@@ -4,4 +4,6 @@ import { IsEnum } from 'class-validator';
 export class FileTypeQuery {
   @IsEnum(FileType)
   type: FileType;
+  ref: string;
+  refName: string;
 }
