@@ -1,9 +1,10 @@
-import { FileSaveDto } from '../../lib';
+import { FileSaveDto, getUploadDir } from '../../lib';
+import * as glob from 'glob';
 
 export abstract class FileProvider {
-  abstract uploadFile(file: FileSaveDto): Promise<any>
+  protected abstract uploadFile(file: FileSaveDto): Promise<any>
 
-  abstract downloadFile(): Promise<any>
+  protected abstract downloadFile(filename: string): Promise<any>
 
   protected fileSupport(mimetype: string) {
     switch (mimetype) {
@@ -14,5 +15,18 @@ export abstract class FileProvider {
       default:
         return false;
     }
+  }
+
+  protected getResource(filename: string): Promise<string[]> {
+    return new Promise(((resolve, reject) => {
+      const uploadDir = getUploadDir();
+      glob(`${uploadDir}/**/${filename}`, function(err, files) {
+        if (err) {
+          reject(err);
+        }
+        resolve(files);
+      });
+    }));
+
   }
 }

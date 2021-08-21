@@ -105,8 +105,9 @@ export class FilesService {
     return resp;
   }
 
-  downloadFile(fileType: FileType) {
-    return this.fileProviderFactory.downloadFile(fileType);
+  downloadFile(fileType: FileType, filename: string) {
+
+    return this.fileProviderFactory.downloadFile(fileType, filename);
   }
 
   // noinspection DuplicatedCode

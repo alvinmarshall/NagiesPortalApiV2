@@ -1,19 +1,35 @@
 import { FileProvider } from '../file.provider';
-import { FileSaveDto, saveBufferFile, UploadDirectory } from '../../../lib';
-import { UnsupportedFileTypeException } from '../../../lib/exception/unsupported-file-type.exception';
+import {
+  FileNotFoundException,
+  FileSaveDto,
+  saveBufferFile,
+  UnsupportedFileTypeException,
+  UploadDirectory,
+} from '../../../lib';
 
 export class FileBill extends FileProvider {
-  downloadFile(): Promise<any> {
-    return Promise.resolve('downloading file');
+  async downloadFile(filename: string): Promise<any> {
+    const files = await this.getResource(filename);
+    const dir = UploadDirectory.BILL;
+    // check if the file is in scope
+    // we don't allow any file downloaded out of scope
+    if (files.length) {
+      for (let index in files) {
+        if (files[index].includes(dir)) {
+          return Promise.resolve(files[index]);
+        }
+      }
+
+    }
+    throw new FileNotFoundException();
   }
 
-  uploadFile(file: FileSaveDto): Promise<any> {
+  async uploadFile(file: FileSaveDto): Promise<any> {
     file.path = UploadDirectory.BILL;
-    console.log(file);
     if (!this.fileSupport(file.mimetype)) throw new UnsupportedFileTypeException();
 
-    saveBufferFile(file);
-    return Promise.resolve('uploading file');
+    const resp = await saveBufferFile(file);
+    return Promise.resolve(resp);
   }
 
 }

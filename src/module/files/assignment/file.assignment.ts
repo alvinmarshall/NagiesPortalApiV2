@@ -1,10 +1,29 @@
 import { FileProvider } from '../file.provider';
-import { FileSaveDto, FileType, saveBufferFile, UnsupportedFileTypeException, UploadDirectory } from '../../../lib';
+import {
+  FileNotFoundException,
+  FileSaveDto,
+  FileType,
+  saveBufferFile,
+  UnsupportedFileTypeException,
+  UploadDirectory,
+} from '../../../lib';
 import { UploadFile } from '../file.interface';
 
 export class FileAssignment extends FileProvider {
-  downloadFile(): Promise<any> {
-    return Promise.resolve('downloading file');
+  async downloadFile(filename: string): Promise<string> {
+    const files = await this.getResource(filename);
+    const dir = UploadDirectory.ASSIGNMENT;
+    // check if the file is in scope
+    // we don't any file downloaded
+    if (files.length) {
+      for (let index in files) {
+        if (files[index].includes(dir)) {
+          return Promise.resolve(files[index]);
+        }
+      }
+
+    }
+    throw new FileNotFoundException();
   }
 
   async uploadFile(file: FileSaveDto): Promise<UploadFile> {

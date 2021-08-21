@@ -15,14 +15,18 @@ export interface FileSaveDto {
 
 }
 
+export const getUploadDir = (): string => {
+  let uploadDir = process.env['UPLOAD_DIR'] || undefined;
+  if (!uploadDir) {
+    uploadDir = './uploads';
+  }
+  return uploadDir;
+};
+
 export const saveBufferFile = (file: FileSaveDto): Promise<any> => {
   return new Promise(((resolve, reject) => {
     try {
-      let uploadDir = process.env['UPLOAD_DIR'] || undefined;
-      if (!uploadDir) {
-        uploadDir = './uploads';
-      }
-
+      const uploadDir = getUploadDir();
       fs.mkdirSync(`${uploadDir}/${file.path}`, { recursive: true });
       let path = `${uploadDir}/${file.path}/${file.originalname}`;
       let fileUrl = `${file.path}/${file.originalname}`;

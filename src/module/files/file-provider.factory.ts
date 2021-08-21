@@ -34,7 +34,7 @@ export class FileProviderFactory {
     return this.actions[fileType]().uploadFile(file);
   }
 
-  async downloadFile(fileType: FileType) {
-    return this.actions[fileType]().downloadFile();
+  async downloadFile(fileType: FileType, filename: string) {
+    return this.actions[fileType]().downloadFile(filename);
   }
 }

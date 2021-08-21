@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileTypeQuery } from './dto/file.dto';
 import { GetUser } from '../auth/decorator';
 import { UserDetails } from '../auth/interface';
@@ -13,7 +13,7 @@ export class FilesController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('/upload')
+  @Post('/upload-file')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @GetUser() user: UserDetails,
@@ -27,8 +27,9 @@ export class FilesController {
     return this.filesService.uploadFile(user, fileQuery.type, fileDto);
   }
 
-  @Get('/download')
-  async getDownload(@Query() fileQuery: FileTypeQuery) {
-    return this.filesService.downloadFile(fileQuery.type);
+  @Get('/download/:filename')
+  async getDownload(@Res() res, @Query() fileQuery: FileTypeQuery, @Param('filename') filename: string) {
+    const file = await this.filesService.downloadFile(fileQuery.type, filename);
+    return res.download(file);
   }
 }
