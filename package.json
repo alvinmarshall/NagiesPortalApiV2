@@ -38,7 +38,7 @@
     "class-validator": "^0.13.1",
     "firebase-admin": "^9.10.0",
     "glob": "^7.1.7",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.3",
     "mysql2": "^2.2.5",
     "passport": "^0.4.1",
