@@ -35,7 +35,7 @@
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/typeorm": "^7.1.5",
     "class-transformer": "^0.4.0",
-    "class-validator": "^0.13.1",
+    "class-validator": "^0.14.0",
     "firebase-admin": "^9.10.0",
     "glob": "^7.1.7",
     "jsonwebtoken": "^8.5.1",
